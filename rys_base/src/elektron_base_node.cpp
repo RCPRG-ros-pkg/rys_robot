@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
 	ros::init(argc, argv, "elektron_base_node");
 	ros::NodeHandle n;
 	ros::NodeHandle nh("~");
-
+ROS_DEBUG("rys_base/src/elektron_base_node.cpp: main()\n");
 	bool publish_odom_tf;
 	bool dump;
 

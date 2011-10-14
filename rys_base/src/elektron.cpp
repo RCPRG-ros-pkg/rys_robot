@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <ros/console.h>
 #include <cstring>
 #include <iostream>
 
@@ -76,7 +77,7 @@ Protonek::Protonek(const std::string& port, int baud) {
 		tcsetattr(fd, TCSANOW, &newtio);
 		connected = true;
 	}
-
+connected = true;
 	_dump = false;
 }
 
@@ -100,11 +101,11 @@ void Protonek::dump() {
 
 void Protonek::update() {
 	unsigned int ret = 0;
-	tcflush(fd, TCIFLUSH);
-	write(fd, &setvel, sizeof(setvel));
-
-	while (ret < sizeof(getdata))
-		ret += read(fd, ((char*) &getdata) + ret, sizeof(getdata) - ret);
+//	tcflush(fd, TCIFLUSH);
+//	write(fd, &setvel, sizeof(setvel));
+	ROS_DEBUG("%d %d\n", setvel.lvel, setvel.rvel);
+//	while (ret < sizeof(getdata))
+//		ret += read(fd, ((char*) &getdata) + ret, sizeof(getdata) - ret);
 
 }
 

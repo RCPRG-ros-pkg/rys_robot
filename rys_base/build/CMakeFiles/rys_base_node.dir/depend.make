@@ -3,6 +3,11 @@
 
 CMakeFiles/rys_base_node.dir/src/elektron.o: ../src/elektron.cpp
 CMakeFiles/rys_base_node.dir/src/elektron.o: ../src/elektron.hpp
+CMakeFiles/rys_base_node.dir/src/elektron.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosconsole/include/ros/console.h
+CMakeFiles/rys_base_node.dir/src/elektron.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosconsole/include/rosconsole/macros_generated.h
+CMakeFiles/rys_base_node.dir/src/elektron.o: /opt/ros/diamondback/stacks/ros_comm/utilities/cpp_common/include/ros/exception.h
+CMakeFiles/rys_base_node.dir/src/elektron.o: /opt/ros/diamondback/stacks/ros_comm/utilities/rostime/include/ros/duration.h
+CMakeFiles/rys_base_node.dir/src/elektron.o: /opt/ros/diamondback/stacks/ros_comm/utilities/rostime/include/ros/time.h
 
 CMakeFiles/rys_base_node.dir/src/elektron_base_node.o: ../src/elektron.hpp
 CMakeFiles/rys_base_node.dir/src/elektron_base_node.o: ../src/elektron_base_node.cpp

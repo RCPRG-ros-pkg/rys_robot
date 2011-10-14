@@ -4,6 +4,11 @@
 CMakeFiles/rys_base_node.dir/src/elektron.o
  /home/eee/ros/rys_robot/rys_base/src/elektron.cpp
  /home/eee/ros/rys_robot/rys_base/src/elektron.hpp
+ /opt/ros/diamondback/stacks/ros_comm/tools/rosconsole/include/ros/console.h
+ /opt/ros/diamondback/stacks/ros_comm/tools/rosconsole/include/rosconsole/macros_generated.h
+ /opt/ros/diamondback/stacks/ros_comm/utilities/cpp_common/include/ros/exception.h
+ /opt/ros/diamondback/stacks/ros_comm/utilities/rostime/include/ros/duration.h
+ /opt/ros/diamondback/stacks/ros_comm/utilities/rostime/include/ros/time.h
 CMakeFiles/rys_base_node.dir/src/elektron_base_node.o
  /home/eee/ros/rys_robot/rys_base/src/elektron.hpp
  /home/eee/ros/rys_robot/rys_base/src/elektron_base_node.cpp
