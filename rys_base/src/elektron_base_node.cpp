@@ -14,6 +14,25 @@ void twistCallback(const geometry_msgs::TwistConstPtr& msg) {
 	double rvel = -msg->linear.x + rotational_term;
 	double lvel = -msg->linear.x - rotational_term;
 
+	// turbo button
+	if (msg->angular.x < 0.5)
+	{
+		rvel /= 2.0;
+		lvel /= 2.0;
+	}
+
+	// stop button
+	if (msg->angular.y > 0.5)
+		rvel = lvel = 0;
+
+	// feature 1 button
+	if (msg->linear.y > 0.5)
+		p->trick1();
+
+	// feature 2 button
+	if (msg->linear.z > 0.5)
+		p->trick2();
+
 	p->setVelocity(lvel, rvel);
 }
 

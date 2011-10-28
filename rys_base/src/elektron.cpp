@@ -313,7 +313,6 @@ void Protonek::Receive(double time) {
 
         static bool receivedCorrectData = false;
 
-//ROS_DEBUG("                  bytes read: %d\n", bytesRead);
         for (int i_buf=0; i_buf<bytesRead; ++i_buf)
         {
                 buf = buffer[i_buf];
@@ -322,111 +321,115 @@ void Protonek::Receive(double time) {
                 ans_buf[sizeof(MSG)-1] = buf;
                 ++ans_i;
 
-                //if (ans_i == sizeof(MSG))
+                uint16_t crc = Crc::Crc16(answer);
+
+// ramka danych ze sterownika silnikow
+// answer.d[0]		local time low byte
+// answer.d[1]		local time high byte
+// answer.d[2]		zmierzona szybkosc (enc B)
+// answer.d[3]		zadana szybkosc
+// answer.d[4]		zmierzony prad
+// answer.d[5]		zadany prad
+// answer.d[6]		safe mode
+// answer.d[7]		odom (A) low byte
+// answer.d[8]		odom (A) high byte
+// answer.d[9]		odom (B) low byte
+// answer.d[10]		odom (B) high byte
+// answer.d[11]		0
+
+
+                if (crc==0 && answer.header==MSG_HEADER && answer.adr==1)	// crc
                 {
-                    uint16_t crc = Crc::Crc16(answer);
+                        int mocZadana = answer.d[5];
+                        int szybkoscZadana = answer.d[3];
+                        //printf("ok\n");
+                        //float speedRatio = (float)((char)answer.d[2])/(float)((char)answer.d[3]);
+                        rspeed = (signed char)(answer.d[2]);// | (answer.d[3]<<8));
 
-                        if (crc==0 && answer.header==MSG_HEADER && answer.adr==1)	// crc
-                        {
-                                int mocZadana = answer.d[5];
-                                int szybkoscZadana = answer.d[3];
-                                //printf("ok\n");
-                                //float speedRatio = (float)((char)answer.d[2])/(float)((char)answer.d[3]);
-                                rspeed = (signed char)(answer.d[2]);// | (answer.d[3]<<8));
+                        //rspeed = 100.0f/rspeed;
 
-                                //rspeed = 100.0f/rspeed;
+                        int distance = answer.d[9] | (answer.d[10]<<8);
 
-                                int distance = answer.d[9] | (answer.d[10]<<8);
+                        position_left.update(distance,time);
 
-                                position_left.update(distance,time);
+                        //static float smoothSpeed = 0;
+                        //smoothSpeed = smoothSpeed*0.9 + speed*0.1;
+                        if (0)
+                                ROS_DEBUG("%d %dms %d %d %d %.3f / %.3f %d moc: %.3f / %.3f dist: %d",
+                                        (int)answer.adr,
+                                        (int)(position_left.getInterval()*1000),
+                                        ans_i,
+                                        (int)answer.d[0],
+                                        (int)answer.d[1],
+                                        rspeed,
+                                        (float)szybkoscZadana,
+                                        (int)answer.d[4],
+                                        (float)answer.d[5]/23.5,
+                                        (float)mocZadana/23.5,
+                                        distance);
+                        trans_OK = true;
+                        receivedCorrectData = true;
 
-                                //static float smoothSpeed = 0;
-                                //smoothSpeed = smoothSpeed*0.9 + speed*0.1;
-                                if (1)
-                                        ROS_DEBUG("%d %dms %d %d %d %.3f / %.3f %d moc: %.3f / %.3f dist: %d",
-                                                (int)answer.adr,
-                                                (int)(position_left.getInterval()*1000),
-                                                ans_i,
-                                                (int)answer.d[0],
-                                                (int)answer.d[1],
-                                                rspeed,
-                                                (float)szybkoscZadana,
-                                                (int)answer.d[4],
-                                                (float)answer.d[5]/23.5,
-                                                (float)mocZadana/23.5,
-                                                distance);
-                                trans_OK = true;
-                                receivedCorrectData = true;
+                        ans_i = 0;		// czekamy na nastepne bajty
+                } else
+                if (crc==0 && answer.header==MSG_HEADER && answer.adr==2)	// crc
+                {
+                        int mocZadana = answer.d[5];
+                        int szybkoscZadana = answer.d[3];
+                        //printf("ok\n");
+                        //float speedRatio = (float)((char)answer.d[2])/(float)((char)answer.d[3]);
+                        lspeed = (signed char)(answer.d[2]);// | (answer.d[3]<<8));
 
-                                ans_i = 0;		// czekamy na nastepne bajty
-                        } else
-                        if (crc==0 && answer.header==MSG_HEADER && answer.adr==2)	// crc
-                        {
-                                int mocZadana = answer.d[5];
-                                int szybkoscZadana = answer.d[3];
-                                //printf("ok\n");
-                                //float speedRatio = (float)((char)answer.d[2])/(float)((char)answer.d[3]);
-                                lspeed = (signed char)(answer.d[2]);// | (answer.d[3]<<8));
+                        //lspeed = 100.0f/lspeed;
 
-                                //lspeed = 100.0f/lspeed;
+                        int distance = answer.d[9] | (answer.d[10]<<8);
 
-                                int distance = answer.d[9] | (answer.d[10]<<8);
+                        position_right.update(distance,time);
 
-                                position_right.update(distance,time);
+                        //static float smoothSpeed = 0;
+                        //smoothSpeed = smoothSpeed*0.9 + speed*0.1;
+                        if (0)
+                                ROS_DEBUG("%d %dms %d %d %d %.3f / %.3f %d\tmoc: %.3f / %.3f dist: %d",
+                                        (int)answer.adr,
+                                        (int)(position_right.getInterval()*1000),
+                                        ans_i,
+                                        (int)answer.d[0],
+                                        (int)answer.d[1],
+                                        lspeed,
+                                        (float)szybkoscZadana,
+                                        (int)answer.d[4],
+                                        (float)answer.d[5]/23.5,
+                                        (float)mocZadana/23.5,
+                                        distance);
+                        trans_OK = true;
+                        receivedCorrectData = true;
 
-                                //static float smoothSpeed = 0;
-                                //smoothSpeed = smoothSpeed*0.9 + speed*0.1;
-                                if (1)
-                                        ROS_DEBUG("%d %dms %d %d %d %.3f / %.3f %d\tmoc: %.3f / %.3f dist: %d",
-                                                (int)answer.adr,
-                                                (int)(position_right.getInterval()*1000),
-                                                ans_i,
-                                                (int)answer.d[0],
-                                                (int)answer.d[1],
-                                                lspeed,
-                                                (float)szybkoscZadana,
-                                                (int)answer.d[4],
-                                                (float)answer.d[5]/23.5,
-                                                (float)mocZadana/23.5,
-                                                distance);
-                                trans_OK = true;
-                                receivedCorrectData = true;
+                        ans_i = 0;		// czekamy na nastepne bajty
+                } else
+                if (crc==0 && answer.header==MSG_HEADER && answer.adr==3)
+                {
+                        static double accX=100, accY=100, accZ=100;
+                        accX = (answer.d[2] + (answer.d[3]<<8))*0.4 + 0.6*accX;
+                        accY = (answer.d[4] + (answer.d[5]<<8))*0.4 + 0.6*accY;
+                        accZ = (answer.d[6] + (answer.d[7]<<8))*0.4 + 0.6*accZ;
 
-                                ans_i = 0;		// czekamy na nastepne bajty
-                        } else
-                        if (crc==0 && answer.header==MSG_HEADER && answer.adr==3)
-                        {
-                                static double accX=100, accY=100, accZ=100;
-                                accX = (answer.d[2] + (answer.d[3]<<8))*0.4 + 0.6*accX;
-                                accY = (answer.d[4] + (answer.d[5]<<8))*0.4 + 0.6*accY;
-                                accZ = (answer.d[6] + (answer.d[7]<<8))*0.4 + 0.6*accZ;
-
-                                orientation.update(accX, accY, accZ, ((int)answer.d[10]-117), time);
+                        orientation.update(accX, accY, accZ, ((int)answer.d[10]-117), time);
 
 
-//                                printf("%d   %d   %d   %d\n", (int)answer.d[8], (int)answer.d[9], (int)answer.d[10], (int)answer.d[11]);
+//                      printf("%d   %d   %d   %d\n", (int)answer.d[8], (int)answer.d[9], (int)answer.d[10], (int)answer.d[11]);
 
-                                trans_OK = true;
-                                receivedCorrectData = true;
+                        trans_OK = true;
+                        receivedCorrectData = true;
 
-                                ans_i = 0;		// czekamy na nastepne bajty
-                        } else
-                        {
-                                //ans_i = sizeof(MSG)-1;		// cos sie pomieszalo - moze zgubiono 1 bajt
-                        }
+                        ans_i = 0;		// czekamy na nastepne bajty
+                } else
+                {
+                        //ans_i = sizeof(MSG)-1;		// cos sie pomieszalo - moze zgubiono 1 bajt
                 }
         }
 }
 
 void Protonek::update() {
-//	unsigned int ret = 0;
-//	tcflush(fd, TCIFLUSH);
-//	write(fd, &setvel, sizeof(setvel));
-//	ROS_DEBUG("%d %d\n", setvel.lvel, setvel.rvel);
-//	while (ret < sizeof(getdata))
-//		ret += read(fd, ((char*) &getdata) + ret, sizeof(getdata) - ret);
-
-//printf("%lf\n",(lspeed+rspeed)/2);
         static int error = 0;
         static float velocityA=0, velocityB=0;
 
@@ -439,14 +442,12 @@ void Protonek::update() {
         static double time = 0;
         time += interval;					// czas skumulowany
 
-//        getJoystickState();
-
 bridgeL.Run();
 bridgeR.Run();
 
         if (elapsed>0.01)
         {
-    	    ROS_DEBUG("%f %f", (float)lvel, (float)rvel);
+//    	    ROS_DEBUG("%f %f", (float)lvel, (float)rvel);
                 static bool manual = false;
                 static double verticalTime = 0;
 
@@ -529,6 +530,13 @@ void Protonek::SetPower(double lcur, double rcur)
 //	steering.lvel = steering.rvel = 0;
 }
 
+void Protonek::trick1()
+{
+}
+
+void Protonek::trick2()
+{
+}
 
 double Protonek::getPitch() {
     return orientation.getPitch();
@@ -540,13 +548,9 @@ double Protonek::getDPitch() {
 
 void Protonek::getVelocity(double &xvel, double &thvel) {
 	static int maxl = 0, maxr = 0;
-	double lvel = 0;//(double) (getdata.lvel) * m_per_tick * 10;
-	double rvel = 0;//(double) (getdata.rvel) * m_per_tick * 10;
+	double lvel = lspeed;//(double) (getdata.lvel) * m_per_tick * 10;
+	double rvel = rspeed;//(double) (getdata.rvel) * m_per_tick * 10;
 
-//	if (getdata.lvel > maxl) maxl = getdata.lvel;
-//	if (getdata.rvel > maxr) maxr = getdata.rvel;
-
-	//std::cout << maxl << " " << maxr << "\n";
 	xvel = (lvel + rvel) * 0.5;
 	thvel = (lvel - rvel) / AXLE_LENGTH;
 }
@@ -556,6 +560,8 @@ void Protonek::updateOdometry() {
 	//std::cout << "lpos: " << getdata.lpos << ", rpos: " << getdata.rpos << " lindex: " << getdata.lindex << " rindex: " << getdata.rindex << "\n";
 
 	//std::cout << "vel: " << getdata.lvel << " " << getdata.rvel << "\n";
+	xpos += position_left.getPosition();
+	ypos += position_right.getPosition();
 /*
 	double lpos = getdata.lpos + enc_ticks * getdata.lindex;
 	double rpos = getdata.rpos + enc_ticks * getdata.rindex;
@@ -619,7 +625,7 @@ Protonek::Orientation::Orientation() : accX(100), accY(100), accZ(100),
 
 void Protonek::Orientation::update(int accX, int accY, int accZ, int g, double time) {
 
-    printf("accY: %d    accZ: %d    g: %d\n",accY,accZ,g);
+//    printf("accY: %d    accZ: %d    g: %d\n",accY,accZ,g);
     double acceleration = sqrt((accY-311)*(accY-311) + (accZ-316)*(accZ-316))/145.0;
 
     pitch = (180.0*atan2((accY-311),(accZ-316))/M_PI) + (double)g*0.1;
