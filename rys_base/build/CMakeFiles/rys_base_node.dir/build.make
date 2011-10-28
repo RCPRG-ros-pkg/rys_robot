@@ -195,16 +195,166 @@ CMakeFiles/rys_base_node.dir/src/elektron.o.provides: CMakeFiles/rys_base_node.d
 CMakeFiles/rys_base_node.dir/src/elektron.o.provides.build: CMakeFiles/rys_base_node.dir/src/elektron.o
 .PHONY : CMakeFiles/rys_base_node.dir/src/elektron.o.provides.build
 
+CMakeFiles/rys_base_node.dir/src/common.o: CMakeFiles/rys_base_node.dir/flags.make
+CMakeFiles/rys_base_node.dir/src/common.o: ../src/common.cpp
+CMakeFiles/rys_base_node.dir/src/common.o: ../manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/ros/core/rosbuild/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/ros/core/roslang/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/utilities/cpp_common/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/clients/cpp/roscpp_traits/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/utilities/rostime/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/clients/cpp/roscpp_serialization/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/ros/tools/rospack/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/ros/core/roslib/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/utilities/xmlrpcpp/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosconsole/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/messages/std_msgs/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/messages/rosgraph_msgs/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/clients/cpp/roscpp/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/clients/rospy/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/ros/tools/rosclean/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosgraph/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosmaster/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosout/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/tools/roslaunch/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/ros/tools/rosunit/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/tools/rostest/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/tools/topic_tools/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosbag/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosbagmigration/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/common_msgs/geometry_msgs/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/common_msgs/nav_msgs/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/common_msgs/sensor_msgs/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/geometry/bullet/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/geometry/angles/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosnode/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosmsg/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/tools/rostopic/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosservice/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/utilities/roswtf/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/utilities/message_filters/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/geometry/tf/manifest.xml
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/messages/std_msgs/msg_gen/generated
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/messages/rosgraph_msgs/msg_gen/generated
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/clients/cpp/roscpp/msg_gen/generated
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/clients/cpp/roscpp/srv_gen/generated
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/ros_comm/tools/topic_tools/srv_gen/generated
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/common_msgs/geometry_msgs/msg_gen/generated
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/common_msgs/nav_msgs/msg_gen/generated
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/common_msgs/nav_msgs/srv_gen/generated
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/common_msgs/sensor_msgs/msg_gen/generated
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/common_msgs/sensor_msgs/srv_gen/generated
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/geometry/tf/msg_gen/generated
+CMakeFiles/rys_base_node.dir/src/common.o: /opt/ros/diamondback/stacks/geometry/tf/srv_gen/generated
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/eee/ros/rys_robot/rys_base/build/CMakeFiles $(CMAKE_PROGRESS_3)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/rys_base_node.dir/src/common.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -DBT_USE_DOUBLE_PRECISION -DBT_EULER_DEFAULT_ZYX -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -o CMakeFiles/rys_base_node.dir/src/common.o -c /home/eee/ros/rys_robot/rys_base/src/common.cpp
+
+CMakeFiles/rys_base_node.dir/src/common.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rys_base_node.dir/src/common.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -DBT_USE_DOUBLE_PRECISION -DBT_EULER_DEFAULT_ZYX -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -E /home/eee/ros/rys_robot/rys_base/src/common.cpp > CMakeFiles/rys_base_node.dir/src/common.i
+
+CMakeFiles/rys_base_node.dir/src/common.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rys_base_node.dir/src/common.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -DBT_USE_DOUBLE_PRECISION -DBT_EULER_DEFAULT_ZYX -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -S /home/eee/ros/rys_robot/rys_base/src/common.cpp -o CMakeFiles/rys_base_node.dir/src/common.s
+
+CMakeFiles/rys_base_node.dir/src/common.o.requires:
+.PHONY : CMakeFiles/rys_base_node.dir/src/common.o.requires
+
+CMakeFiles/rys_base_node.dir/src/common.o.provides: CMakeFiles/rys_base_node.dir/src/common.o.requires
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/common.o.provides.build
+.PHONY : CMakeFiles/rys_base_node.dir/src/common.o.provides
+
+CMakeFiles/rys_base_node.dir/src/common.o.provides.build: CMakeFiles/rys_base_node.dir/src/common.o
+.PHONY : CMakeFiles/rys_base_node.dir/src/common.o.provides.build
+
+CMakeFiles/rys_base_node.dir/src/hbridge.o: CMakeFiles/rys_base_node.dir/flags.make
+CMakeFiles/rys_base_node.dir/src/hbridge.o: ../src/hbridge.cpp
+CMakeFiles/rys_base_node.dir/src/hbridge.o: ../manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/ros/core/rosbuild/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/ros/core/roslang/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/utilities/cpp_common/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/clients/cpp/roscpp_traits/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/utilities/rostime/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/clients/cpp/roscpp_serialization/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/ros/tools/rospack/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/ros/core/roslib/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/utilities/xmlrpcpp/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosconsole/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/messages/std_msgs/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/messages/rosgraph_msgs/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/clients/cpp/roscpp/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/clients/rospy/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/ros/tools/rosclean/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosgraph/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosmaster/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosout/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/tools/roslaunch/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/ros/tools/rosunit/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/tools/rostest/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/tools/topic_tools/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosbag/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosbagmigration/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/common_msgs/geometry_msgs/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/common_msgs/nav_msgs/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/common_msgs/sensor_msgs/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/geometry/bullet/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/geometry/angles/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosnode/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosmsg/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/tools/rostopic/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/tools/rosservice/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/utilities/roswtf/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/utilities/message_filters/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/geometry/tf/manifest.xml
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/messages/std_msgs/msg_gen/generated
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/messages/rosgraph_msgs/msg_gen/generated
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/clients/cpp/roscpp/msg_gen/generated
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/clients/cpp/roscpp/srv_gen/generated
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/ros_comm/tools/topic_tools/srv_gen/generated
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/common_msgs/geometry_msgs/msg_gen/generated
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/common_msgs/nav_msgs/msg_gen/generated
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/common_msgs/nav_msgs/srv_gen/generated
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/common_msgs/sensor_msgs/msg_gen/generated
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/common_msgs/sensor_msgs/srv_gen/generated
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/geometry/tf/msg_gen/generated
+CMakeFiles/rys_base_node.dir/src/hbridge.o: /opt/ros/diamondback/stacks/geometry/tf/srv_gen/generated
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/eee/ros/rys_robot/rys_base/build/CMakeFiles $(CMAKE_PROGRESS_4)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/rys_base_node.dir/src/hbridge.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -DBT_USE_DOUBLE_PRECISION -DBT_EULER_DEFAULT_ZYX -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -o CMakeFiles/rys_base_node.dir/src/hbridge.o -c /home/eee/ros/rys_robot/rys_base/src/hbridge.cpp
+
+CMakeFiles/rys_base_node.dir/src/hbridge.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rys_base_node.dir/src/hbridge.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -DBT_USE_DOUBLE_PRECISION -DBT_EULER_DEFAULT_ZYX -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -E /home/eee/ros/rys_robot/rys_base/src/hbridge.cpp > CMakeFiles/rys_base_node.dir/src/hbridge.i
+
+CMakeFiles/rys_base_node.dir/src/hbridge.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rys_base_node.dir/src/hbridge.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -DBT_USE_DOUBLE_PRECISION -DBT_EULER_DEFAULT_ZYX -W -Wall -Wno-unused-parameter -fno-strict-aliasing -pthread -S /home/eee/ros/rys_robot/rys_base/src/hbridge.cpp -o CMakeFiles/rys_base_node.dir/src/hbridge.s
+
+CMakeFiles/rys_base_node.dir/src/hbridge.o.requires:
+.PHONY : CMakeFiles/rys_base_node.dir/src/hbridge.o.requires
+
+CMakeFiles/rys_base_node.dir/src/hbridge.o.provides: CMakeFiles/rys_base_node.dir/src/hbridge.o.requires
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/hbridge.o.provides.build
+.PHONY : CMakeFiles/rys_base_node.dir/src/hbridge.o.provides
+
+CMakeFiles/rys_base_node.dir/src/hbridge.o.provides.build: CMakeFiles/rys_base_node.dir/src/hbridge.o
+.PHONY : CMakeFiles/rys_base_node.dir/src/hbridge.o.provides.build
+
 # Object files for target rys_base_node
 rys_base_node_OBJECTS = \
 "CMakeFiles/rys_base_node.dir/src/elektron_base_node.o" \
-"CMakeFiles/rys_base_node.dir/src/elektron.o"
+"CMakeFiles/rys_base_node.dir/src/elektron.o" \
+"CMakeFiles/rys_base_node.dir/src/common.o" \
+"CMakeFiles/rys_base_node.dir/src/hbridge.o"
 
 # External object files for target rys_base_node
 rys_base_node_EXTERNAL_OBJECTS =
 
 ../bin/rys_base_node: CMakeFiles/rys_base_node.dir/src/elektron_base_node.o
 ../bin/rys_base_node: CMakeFiles/rys_base_node.dir/src/elektron.o
+../bin/rys_base_node: CMakeFiles/rys_base_node.dir/src/common.o
+../bin/rys_base_node: CMakeFiles/rys_base_node.dir/src/hbridge.o
 ../bin/rys_base_node: CMakeFiles/rys_base_node.dir/build.make
 ../bin/rys_base_node: CMakeFiles/rys_base_node.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX executable ../bin/rys_base_node"
@@ -216,6 +366,8 @@ CMakeFiles/rys_base_node.dir/build: ../bin/rys_base_node
 
 CMakeFiles/rys_base_node.dir/requires: CMakeFiles/rys_base_node.dir/src/elektron_base_node.o.requires
 CMakeFiles/rys_base_node.dir/requires: CMakeFiles/rys_base_node.dir/src/elektron.o.requires
+CMakeFiles/rys_base_node.dir/requires: CMakeFiles/rys_base_node.dir/src/common.o.requires
+CMakeFiles/rys_base_node.dir/requires: CMakeFiles/rys_base_node.dir/src/hbridge.o.requires
 .PHONY : CMakeFiles/rys_base_node.dir/requires
 
 CMakeFiles/rys_base_node.dir/clean:

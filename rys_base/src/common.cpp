@@ -6,7 +6,7 @@
  */
 
 #include <math.h>
-#include "common.h"
+#include "common.hpp"
 
 bool Crc::initialised = false;
 uint16_t Crc::CrcTable[256];

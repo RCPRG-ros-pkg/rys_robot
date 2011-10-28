@@ -8,7 +8,7 @@
 #ifndef HBRIDGE_HH_
 #define HBRIDGE_HH_
 
-#include "common.h"
+#include "common.hpp"
 
 class HBridge
 {

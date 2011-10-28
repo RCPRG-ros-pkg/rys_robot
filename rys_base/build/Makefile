@@ -307,6 +307,21 @@ tests/fast:
 .PHONY : tests/fast
 
 # target to build an object file
+src/common.o:
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/common.o
+.PHONY : src/common.o
+
+# target to preprocess a source file
+src/common.i:
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/common.i
+.PHONY : src/common.i
+
+# target to generate assembly for a file
+src/common.s:
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/common.s
+.PHONY : src/common.s
+
+# target to build an object file
 src/elektron.o:
 	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/elektron.o
 .PHONY : src/elektron.o
@@ -336,6 +351,21 @@ src/elektron_base_node.s:
 	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/elektron_base_node.s
 .PHONY : src/elektron_base_node.s
 
+# target to build an object file
+src/hbridge.o:
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/hbridge.o
+.PHONY : src/hbridge.o
+
+# target to preprocess a source file
+src/hbridge.i:
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/hbridge.i
+.PHONY : src/hbridge.i
+
+# target to generate assembly for a file
+src/hbridge.s:
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/hbridge.s
+.PHONY : src/hbridge.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -360,12 +390,18 @@ help:
 	@echo "... test-results"
 	@echo "... test-results-run"
 	@echo "... tests"
+	@echo "... src/common.o"
+	@echo "... src/common.i"
+	@echo "... src/common.s"
 	@echo "... src/elektron.o"
 	@echo "... src/elektron.i"
 	@echo "... src/elektron.s"
 	@echo "... src/elektron_base_node.o"
 	@echo "... src/elektron_base_node.i"
 	@echo "... src/elektron_base_node.s"
+	@echo "... src/hbridge.o"
+	@echo "... src/hbridge.i"
+	@echo "... src/hbridge.s"
 .PHONY : help
 
 

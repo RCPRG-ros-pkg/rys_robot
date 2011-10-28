@@ -19,6 +19,11 @@
 #include <string>
 #include <fstream>
 
+// +
+#include "common.hpp"
+#include "hbridge.hpp"
+// /+
+
 // baudrate
 #define BAUD B115200
 // port
@@ -73,6 +78,24 @@ public:
 	void setVelocity(double lvel, double rvel);
 	void getVelocity(double &lvel, double &rvel);
 
+// +
+        void SetPower(double lvel, double rvel);
+
+        void setupPIDmotorA(int Kp, int Ki, int Kd);
+        void setupPIDmotorB(int Kp, int Ki, int Kd);
+        
+        void AddPortName(const char* port);
+
+        double getPitch();
+        double getDPitch();
+        double getOdomL();
+        double getOdomR();
+
+        void Run();
+        void Stop();
+        
+// /+
+
 	void updateOdometry();
 	void getRawOdometry(double &linc, double &rinc);
 	void getOdometry(double &x, double &y, double &a);
@@ -94,8 +117,8 @@ private:
 	struct termios oldtio;
 	bool connected;
 
-	tsetvel setvel;
-	tgetdata getdata;
+//	tsetvel setvel;
+//	tgetdata getdata;
 
 	double llpos;
 	double lrpos;
@@ -114,11 +137,203 @@ private:
 
 	double lin_scale;
 	double rot_scale;
+
+// +
+        void Balance2(double time, bool reset);
+        void Send();
+        void Receive(double time);
+
+        void getJoystickState();
+
+        bool openPort();
+        void closePort();
+//        bool openJoystick();
+//        void closeJoystick();
+        double getInterval();
+        void sendPWM();
+        void sendPower();
+        void sendVelocity(double lvel, double rvel);
+
+        std::vector<const char*> portNames;
+        bool running;
+
+        double rspeed, lspeed;
+
+        bool isBalancing;
+
+        // joystick descriptor
+//        typedef struct {
+//            int joy_fd, *axis, num_of_axis, num_of_buttons, x;
+//            char *button, name_of_joystick[80];
+//            struct js_event js;
+//        } Joystick;
+//        Joystick joy;
+
+        HBridge bridgeL, bridgeR;
+        double rvel, lvel;
+
+        class Orientation {
+        public:
+                Orientation();
+                void update(int accX, int accY, int accZ, int gyro, double time);
+                bool isValid(double time);
+                double getPitch();
+                double getDPitch(double time);
+                double getInterval();
+        private:
+                int accX,accY,accZ;	// pomiar przyspieszenia
+                int gyro;
+                double updated;		// czas uaktualnienia
+                double updated2;	// poprzedni czas uaktualnienia
+                double pitch, oldPitch;	// kat i szybkosc katowa wzdluz osi kol
+                double pitch2;
+                double dpitch;
+        } orientation;
+
+        class Position {
+        public:
+                Position();
+                void update(int newPosition, double time);
+                bool isValid(double time);
+                double getPosition();
+                double getDPosition(double time);
+                double getInterval();
+        private:
+                int enc;
+                double updated;		// czas uaktualnienia
+                double updated2;	// poprzedni czas uaktualnienia
+                double pos, oldPos;
+                double dpos;
+        } position_left, position_right;
+// /+
 };
 
 #endif /* ELEKTRON_HPP_ */
 
 /*
+#ifndef PROTONEK_HH_
+#define PROTONEK_HH_
+
+#include <inttypes.h>
+#include <termios.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <vector>
+#include <linux/joystick.h>
+#include "common.h"
+#include "hbridge.hh"
+
+#define JOY_DEV "/dev/input/js0"
+
+class Protonek
+{
+public:
+        Protonek(const char* port, int baud = BAUD);
+        ~Protonek();
+
+        void Update();
+
+        void SetVelocity(double lvel, double rvel);
+        void SetPower(double lvel, double rvel);
+
+        void setupPIDmotorA(int Kp, int Ki, int Kd);
+        void setupPIDmotorB(int Kp, int Ki, int Kd);
+
+        void AddPortName(const char* port);
+
+        double getPitch();
+        double getDPitch();
+        double getOdomL();
+        double getOdomR();
+
+        void Run();
+        void Stop();
+
+private:
+        void Balance2(double time, bool reset);
+        void Send();
+        void Receive(double time);
+
+        void getJoystickState();
+
+        bool openPort();
+        void closePort();
+        bool openJoystick();
+        void closeJoystick();
+        double getInterval();
+        void sendPWM();
+        void sendPower();
+        void sendVelocity(double lvel, double rvel);
+
+        std::vector<const char*> portNames;
+        // serial port descriptor
+        int fd;
+        struct termios oldtio;
+        int baud;
+        bool running;
+
+        double rspeed, lspeed;
+
+        bool isBalancing;
+
+        // joystick descriptor
+        typedef struct {
+            int joy_fd, *axis, num_of_axis, num_of_buttons, x;
+            char *button, name_of_joystick[80];
+            struct js_event js;
+        } Joystick;
+        Joystick joy;
+
+private:
+
+        HBridge bridgeL, bridgeR;
+        double rvel, lvel;
+
+        class Orientation {
+        public:
+                Orientation();
+                void update(int accX, int accY, int accZ, int gyro, double time);
+                bool isValid(double time);
+                double getPitch();
+                double getDPitch(double time);
+                double getInterval();
+        private:
+                int accX,accY,accZ;	// pomiar przyspieszenia
+                int gyro;
+                double updated;		// czas uaktualnienia
+                double updated2;	// poprzedni czas uaktualnienia
+                double pitch, oldPitch;	// kat i szybkosc katowa wzdluz osi kol
+                double pitch2;
+                double dpitch;
+        } orientation;
+
+        class Position {
+        public:
+                Position();
+                void update(int newPosition, double time);
+                bool isValid(double time);
+                double getPosition();
+                double getDPosition(double time);
+                double getInterval();
+        private:
+                int enc;
+                double updated;		// czas uaktualnienia
+                double updated2;	// poprzedni czas uaktualnienia
+                double pos, oldPos;
+                double dpos;
+        } position_left, position_right;
+};
+
+#endif // PROTONEK_HH_
+
+******************************************************************************************************************/
+ 
+ 
+/*****************************************************************************************************************
 #ifndef PROTONEK_HH_
 #define PROTONEK_HH_
 

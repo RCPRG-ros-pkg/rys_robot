@@ -6,7 +6,7 @@
  */
 
 #include <math.h>
-#include "hbridge.hh"
+#include "hbridge.hpp"
 
 HBridge::HBridge() : vel(0), cur(0), running(false), curKp(0),
 curKi(0), curKd(0), velKp(0), velKi(0), velKd(0), posB(0), encB(0),

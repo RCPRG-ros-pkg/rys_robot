@@ -371,7 +371,7 @@ clean: CMakeFiles/rospack_gensrv.dir/clean
 CMakeFiles/rys_base_node.dir/all: CMakeFiles/rosbuild_precompile.dir/all
 	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/depend
 	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/eee/ros/rys_robot/rys_base/build/CMakeFiles  1 2
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/eee/ros/rys_robot/rys_base/build/CMakeFiles  1 2 3 4
 	@echo "Built target rys_base_node"
 .PHONY : CMakeFiles/rys_base_node.dir/all
 
@@ -381,7 +381,7 @@ all: CMakeFiles/rys_base_node.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/rys_base_node.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/eee/ros/rys_robot/rys_base/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/eee/ros/rys_robot/rys_base/build/CMakeFiles 4
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/rys_base_node.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/eee/ros/rys_robot/rys_base/build/CMakeFiles 0
 .PHONY : CMakeFiles/rys_base_node.dir/rule

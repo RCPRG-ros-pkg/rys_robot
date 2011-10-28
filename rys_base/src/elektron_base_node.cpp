@@ -38,7 +38,7 @@ ROS_DEBUG("rys_base/src/elektron_base_node.cpp: main()\n");
 	std::string dev;
 
 	if (!nh.getParam("device", dev)) {
-		dev = "/dev/protonek";
+		dev = "/dev/ttyUSB0";
 	}
 
 	if (!nh.getParam("publish_odom_tf", publish_odom_tf)) {
