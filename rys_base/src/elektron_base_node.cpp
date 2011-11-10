@@ -11,7 +11,7 @@ ros::Time cmd_time;
 Protonek *p;
 
 void twistCallback(const geometry_msgs::TwistConstPtr& msg) {
-        double rotational_term = msg->angular.z;
+/*        double rotational_term = msg->angular.z;
         double rvel = -msg->linear.x + rotational_term;
         double lvel = -msg->linear.x - rotational_term;
 
@@ -47,6 +47,22 @@ void twistCallback(const geometry_msgs::TwistConstPtr& msg) {
                 p->trick2();
 
         p->setVelocity(lvel, rvel);
+*/        
+
+        // turbo button
+        p->joystick.buttonTurbo = (msg->angular.x > 0.5);
+
+        // stop button
+        p->joystick.buttonStop = (msg->angular.y > 0.5);
+
+        // feature 1 button
+        p->joystick.buttonGetUp = (msg->linear.y > 0.5);
+
+        // feature 2 button
+        p->joystick.buttonTrick = (msg->linear.z > 0.5);
+
+        p->joystick.speedLinear = msg->linear.x;
+        p->joystick.speedAngular = msg->angular.z;
 }
 
 int main(int argc, char** argv) {

@@ -33,7 +33,8 @@ double ang_nor_rad(double rad) {
 
 Protonek::Protonek(const std::string& port, const Protonek::Parameters &parL,
                     const Protonek::Parameters &parR,  int baud)
-                    : isBalancing(false), rvel(0), lvel(0), speedRegulator(true) {
+                    : isBalancing(false), speedRegulator(true),
+                    state(STOPPING) {
 
         bridgeL.setCurrentPID(parL.currentKp, parL.currentKi, parL.currentKd);
         bridgeL.setSpeedPID(parL.speedKp, parL.speedKi, parL.speedKd);
@@ -151,7 +152,7 @@ void Protonek::Balance2(double time, bool reset) {
             vel = 0;
         }
 
-        double addedAngle = rvel+lvel;
+        double addedAngle = joystick.speedLinear;
 
         double addedAngleMul = (bridgeL.speedMeasured-bridgeR.speedMeasured)/500;
         if (addedAngleMul > 1)
@@ -162,7 +163,7 @@ void Protonek::Balance2(double time, bool reset) {
         addedAngle *= 1.0 - addedAngleMul;
 
         // regulator PID
-        double sERRt = orientation.getPitch()-(balanceAngle + 8*(addedAngle));
+        double sERRt = orientation.pitchGyro-(balanceAngle + 8*(addedAngle));
 
 //        printf("%lf\n",sERRt);
 //        if (sERRt<0)
@@ -206,7 +207,7 @@ void Protonek::Balance2(double time, bool reset) {
 
         double vel2 = vel - output;
 
-        double turn =  (rvel - lvel)*0.2;
+        double turn =  joystick.speedAngular*0.2;
 
         if (speedRegulator)
         {
@@ -385,31 +386,130 @@ void Protonek::Receive(double time) {
         }
 }
 
+void Protonek::stateTeleop() {
+
+        double lvel, rvel;
+
+        lvel = -joystick.speedLinear - joystick.speedAngular;
+        rvel = -joystick.speedLinear + joystick.speedAngular;
+
+        lvel = lvel>1.0?1.0:(lvel<-1.0?-1.0:lvel);
+        rvel = rvel>1.0?1.0:(rvel<-1.0?-1.0:rvel);
+
+        if (joystick.buttonStop) {
+                state = STOPPING;
+                lvel = 0;
+                rvel = 0;
+        } else {
+                if (!joystick.buttonTurbo) {
+                        lvel *= 0.5;
+                        rvel *= 0.5;
+                }
+                
+                if (joystick.buttonGetUp) {
+                        state = GETTINGUP;
+                } else
+                if (joystick.buttonTrick) {
+                }
+                
+                if (fabs(orientation.getPitch()-balanceAngle)<35) {
+                        state = BALANCING;
+                }
+
+
+        }
+        
+//        ROS_DEBUG("TELEOP %lf %lf", lvel, rvel);
+
+        if (speedRegulator) {
+                bridgeL.setSpeed(lvel);
+                bridgeR.setSpeed(-rvel);
+        } else {
+                bridgeL.setCurrent(lvel*0.7);
+                bridgeR.setCurrent(-rvel*0.7);
+        }
+
+}
+
+void Protonek::stateBalancing(double time, double interval) {
+//        ROS_DEBUG("BALANCING");
+
+        static double verticalTime = 0.0;
+        
+        if (verticalTime < 0.5) {
+                Balance2(time,true);      // reset regulatorow balansowania
+        }
+        else {
+                Balance2(time,false);
+        }
+        verticalTime += interval;
+
+        if (fabs(orientation.getPitch()-balanceAngle)>35 || joystick.buttonStop) {
+                verticalTime = 0.0;
+                state = STOPPING;
+        }
+}
+
+void Protonek::stateStopping(double interval) {
+//        ROS_DEBUG("STOPPING");
+
+        static double stoppingTime = 0;
+        
+        bridgeL.setSpeed(0);
+        bridgeR.setSpeed(0);
+        bridgeL.setCurrent(0);
+        bridgeR.setCurrent(0);
+
+        stopMotors();
+                
+        stoppingTime += interval;
+        if (stoppingTime > 0.5) {
+                stoppingTime = 0.0;
+                state = TELEOP;
+                runMotors();
+        }
+}
+
+void Protonek::stateGettingUp() {
+//        ROS_DEBUG("GETTINGUP");
+}
+
 void Protonek::update() {
         static int error = 0;
-//        static float velocityA=0, velocityB=0;
-
-//        unsigned int ret = 0;
 
         // okreslenie jaki czas minal od ostatniego wywolania metody Update
         static double elapsed = 0;
-        double interval = getInterval();	// interwal
-        elapsed += interval;				// czas co jaki sprawdzamy czy nastapila przerwa w transmisji
+        double interval = getInterval();        // interwal
+        elapsed += interval;            // czas co jaki sprawdzamy czy nastapila przerwa w transmisji
         static double time = 0;
-        time += interval;					// czas skumulowany
+        time += interval;               // czas skumulowany
 
-        if (elapsed>0.01)
-        {
-//                static bool manual = false;
-                static double verticalTime = 0;
+        if (elapsed>0.01) {
+                switch (state) {
+                case TELEOP:
+                        stateTeleop();
+                        break;
+                case BALANCING:
+                        stateBalancing(time,interval);
+                        break;
+                case STOPPING:
+                        stateStopping(interval);
+                        break;
+                case GETTINGUP:
+                        stateGettingUp();
+                        break;
+                }
+
+                Send();
+                elapsed = 0;
+                
+/*                static double verticalTime = 0;
 
                 if (trick.isActive()) {
                         trick.setAngle(apos);
                         trick.getVelocity(lvel, rvel);
                 }
                 
-               // printf("%d\n",(int)isBalancing);
-
                 if (fabs(orientation.getPitch()-balanceAngle)>35) {
                         isBalancing = false;
 
@@ -435,14 +535,14 @@ void Protonek::update() {
                         }
                         verticalTime += interval;
                         Send();
-                    }
-                elapsed = 0;
+                }
+*/
         }
 
         Receive(time);
 
 }
-
+/*
 void Protonek::setVelocity(double lvel, double rvel)
 {
         if (lvel>1)
@@ -457,7 +557,7 @@ void Protonek::setVelocity(double lvel, double rvel)
                 rvel = -1;
         this->rvel = rvel;
 }
-
+*/
 void Protonek::SetPower(double lcur, double rcur)
 {
         if (lcur>1)
@@ -588,6 +688,7 @@ void Protonek::Orientation::update(int accX, int accY, int accZ, int g, double t
     
     pitchGyro += (pitch - pitchGyro)*0.1;
 
+ROS_DEBUG("%lf    %lf",pitch,pitchGyro);
     dpitch = pitchGyro - oldPitch;
     oldPitch = pitchGyro;
     

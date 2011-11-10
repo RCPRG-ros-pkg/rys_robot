@@ -54,7 +54,7 @@ public:
 
         void update();
 
-        void setVelocity(double lvel, double rvel);
+//        void setVelocity(double lvel, double rvel);
         void getVelocity(double &lvel, double &rvel);
 
         void SetPower(double lvel, double rvel);
@@ -93,8 +93,30 @@ public:
         HBridge bridgeL, bridgeR;
 
         double balanceAngle;
+        
+        class Joystick {
+        public:
+                Joystick() : buttonStop(false), buttonTurbo(false), buttonGetUp(false),
+                            buttonTrick(false), speedAngular(0.0), speedLinear(0.0) {}
+                            
+                double speedLinear;
+                double speedAngular;
+                bool buttonStop;
+                bool buttonTurbo;
+                bool buttonGetUp;
+                bool buttonTrick;
+        } joystick;
+        
 private:
+        // state
+        enum STATE { TELEOP, BALANCING, STOPPING, GETTINGUP };
+        STATE state;
 
+        void stateTeleop();
+        void stateBalancing(double time, double interval);
+        void stateStopping(double interval);
+        void stateGettingUp();
+                
         // serial port descriptor
         int fd;
         struct termios oldtio;
@@ -117,10 +139,11 @@ private:
 
         bool isBalancing;
 
-        double rvel, lvel;
+//        double rvel, lvel;
 
         bool speedRegulator;
-        
+
+                
         class Orientation {
         public:
                 Orientation();
