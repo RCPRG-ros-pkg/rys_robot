@@ -9,7 +9,7 @@
 #include "hbridge.hpp"
 
 HBridge::HBridge() : vel(0), cur(0), running(false), curKp(0),
-curKi(0), curKd(0), velKp(0), velKi(0), velKd(0), posB(0), encB(0),
+curKi(0), curKd(0), velKp(0), velKi(0), velKd(0), posB(0), oldPosB(0), encB(0),
 updated(0), maxPower(0), address(1) {
 }
 
@@ -28,8 +28,9 @@ void HBridge::setSpeedPID(int Kp, int Ki, int Kd){
     velKd = Kd;
 }
 
-void HBridge::deserialize(int time, const MSG &msg){
-/*    msg.d[0];   // local time low byte
+void HBridge::deserialize(double time, const MSG &msg){
+/*
+    msg.d[0];   // local time low byte
     msg.d[1];   // local time high byte
     msg.d[2];   // zmierzona szybkosc
     msg.d[3];   // zadana szybkosc
@@ -44,15 +45,22 @@ void HBridge::deserialize(int time, const MSG &msg){
     msg.d[11];  // 0
 */
 
-    int distanceB = msg.d[9] | (msg.d[10]<<8);
+    int distanceB = (int)msg.d[9] | ((int)msg.d[10]<<8);
     if (encB > 50000 && distanceB < 10000) {	// przekrecilo sie w gore
             encB -= 0x10000;
     } else if (encB < 10000 && distanceB > 50000) {	// przekrecilo sie w dol
             encB += 0x10000;
     }
-    posB += encB - distanceB;
+    
+    if (encB - distanceB > -100 && encB - distanceB < 100)
+        posB += encB - distanceB;
     encB = distanceB;
     updated = time;
+    
+    currentGiven = msg.d[5];
+    currentMeasured = msg.d[4];
+    speedGiven = msg.d[3];
+    speedMeasured = msg.d[2];
 }
 
 MSG HBridge::serialize(){
@@ -122,11 +130,17 @@ bool HBridge::isRunning() {
 }
 
 bool HBridge::isValid(double time) {
-	return (time-updated)<0.1;
+        return (time-updated)<0.1;
 }
 
 double HBridge::getPosition() {
         return posB;
+}
+
+double HBridge::getPositionDifference() {
+        double result = posB - oldPosB;
+        oldPosB = posB;
+        return result;
 }
 
 void HBridge::setMaxPower(int maxPower) {

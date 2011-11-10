@@ -30,29 +30,33 @@
 #define PORT = "/dev/ttyUSB0"
 
 // wheel diameter in SI units [m]
-#define WHEEL_DIAM 0.1
+#define WHEEL_DIAM 0.5
 // axle length in SI units [m]
-#define AXLE_LENGTH 0.355
+#define AXLE_LENGTH 0.45
 
 // regulator rate in SI units [Hz]
 #define REGULATOR_RATE 100
 
-// maximum velocity, in internal units
-#define MAX_VEL 550
 // number of encoder ticks per single wheel rotation
-#define ENC_TICKS 4000
+#define ENC_TICKS 1056
 
 class Protonek {
 public:
-	Protonek(const std::string& port, int baud = BAUD);
-	~Protonek();
+        class Parameters {
+        public:
+                int currentKp, currentKi, currentKd;
+                int speedKp, speedKi, speedKd;
+                int maxCurrent;
+        };
+        
+        Protonek(const std::string& port, const Parameters &parL, const Parameters &parR, int baud = BAUD);
+        ~Protonek();
 
-	void update();
+        void update();
 
-	void setVelocity(double lvel, double rvel);
-	void getVelocity(double &lvel, double &rvel);
+        void setVelocity(double lvel, double rvel);
+        void getVelocity(double &lvel, double &rvel);
 
-// +
         void SetPower(double lvel, double rvel);
 
         void setupPIDmotorA(int Kp, int Ki, int Kd);
@@ -65,69 +69,58 @@ public:
         double getOdomL();
         double getOdomR();
 
-        void Run();
-        void Stop();
+        void runMotors();
+        void stopMotors();
         
-// /+
+        void updateOdometry();
+        void getRawOdometry(double &linc, double &rinc);
+        void getOdometry(double &x, double &y, double &a);
+        void setOdometry(double x, double y, double a);
+        void getImu(double &accX, double &accY, double &accZ, double &omegaY, double &pitch, double &pitch2);
+        
+        bool isConnected();
 
-	void updateOdometry();
-	void getRawOdometry(double &linc, double &rinc);
-	void getOdometry(double &x, double &y, double &a);
-	void setOdometry(double x, double y, double a);
+        double m_per_tick;
+        double robot_axle_length;
+        double enc_ticks;
 
-	bool isConnected();
+        void trick1();
+        void trick2();
 
-	double m_per_tick;
-	double robot_axle_length;
-	double enc_ticks;
+        void enableSpeedRegulator();
+        void disableSpeedRegulator();
+        
+        HBridge bridgeL, bridgeR;
 
-	void dump();
-
-	void setParams(double ls, double rs);
-
-	void trick1();
-	void trick2();
-	
+        double balanceAngle;
 private:
-	// serial port descriptor
-	int fd;
-	struct termios oldtio;
-	bool connected;
 
-	double llpos;
-	double lrpos;
+        // serial port descriptor
+        int fd;
+        struct termios oldtio;
+        bool connected;
 
-	double xpos;
-	double ypos;
-	double apos;
+        
+        double xpos;
+        double ypos;
+        double apos;
 
-	bool odom_initialized;
+        bool odom_initialized;
 
-	int32_t old_lpos, old_rpos;
+        std::ofstream of;
 
-	std::ofstream of;
-
-	bool _dump;
-
-	double lin_scale;
-	double rot_scale;
-
-// +
         void Balance2(double time, bool reset);
         void Send();
         void Receive(double time);
 
         double getInterval();
 
-        bool running;
-
-        double rspeed, lspeed;
-
         bool isBalancing;
 
-        HBridge bridgeL, bridgeR;
         double rvel, lvel;
 
+        bool speedRegulator;
+        
         class Orientation {
         public:
                 Orientation();
@@ -136,32 +129,33 @@ private:
                 double getPitch();
                 double getDPitch(double time);
                 double getInterval();
-        private:
+
                 int accX,accY,accZ;	// pomiar przyspieszenia
-                int gyro;
+                int omegaY;
+                double pitchGyro;
+        private:
                 double updated;		// czas uaktualnienia
                 double updated2;	// poprzedni czas uaktualnienia
                 double pitch, oldPitch;	// kat i szybkosc katowa wzdluz osi kol
                 double pitch2;
                 double dpitch;
+                
         } orientation;
 
-        class Position {
+        class Trick {
         public:
-                Position();
-                void update(int newPosition, double time);
-                bool isValid(double time);
-                double getPosition();
-                double getDPosition(double time);
-                double getInterval();
+                Trick();
+                
+                void getVelocity(double& lvel, double& rvel);
+                void setAngle(double th);
+                bool isActive();
+                void start();
+                
         private:
-                int enc;
-                double updated;		// czas uaktualnienia
-                double updated2;	// poprzedni czas uaktualnienia
-                double pos, oldPos;
-                double dpos;
-        } position_left, position_right;
-// /+
+                bool active;
+                double angleAccum;
+                double angleOld;
+        } trick;
 };
 
 #endif /* ELEKTRON_HPP_ */

@@ -32,6 +32,7 @@ CMakeFiles/rys_base_node.dir/src/elektron_base_node.o: /opt/ros/diamondback/stac
 CMakeFiles/rys_base_node.dir/src/elektron_base_node.o: /opt/ros/diamondback/stacks/common_msgs/geometry_msgs/msg_gen/cpp/include/geometry_msgs/Vector3.h
 CMakeFiles/rys_base_node.dir/src/elektron_base_node.o: /opt/ros/diamondback/stacks/common_msgs/geometry_msgs/msg_gen/cpp/include/geometry_msgs/Vector3Stamped.h
 CMakeFiles/rys_base_node.dir/src/elektron_base_node.o: /opt/ros/diamondback/stacks/common_msgs/nav_msgs/msg_gen/cpp/include/nav_msgs/Odometry.h
+CMakeFiles/rys_base_node.dir/src/elektron_base_node.o: /opt/ros/diamondback/stacks/common_msgs/sensor_msgs/msg_gen/cpp/include/sensor_msgs/Imu.h
 CMakeFiles/rys_base_node.dir/src/elektron_base_node.o: /opt/ros/diamondback/stacks/geometry/bullet/include/LinearMath/btMatrix3x3.h
 CMakeFiles/rys_base_node.dir/src/elektron_base_node.o: /opt/ros/diamondback/stacks/geometry/bullet/include/LinearMath/btMinMax.h
 CMakeFiles/rys_base_node.dir/src/elektron_base_node.o: /opt/ros/diamondback/stacks/geometry/bullet/include/LinearMath/btQuadWord.h
@@ -98,5 +99,7 @@ CMakeFiles/rys_base_node.dir/src/elektron_base_node.o: /opt/ros/diamondback/stac
 CMakeFiles/rys_base_node.dir/src/elektron_base_node.o: /opt/ros/diamondback/stacks/ros_comm/utilities/rostime/include/ros/time.h
 CMakeFiles/rys_base_node.dir/src/elektron_base_node.o: /opt/ros/diamondback/stacks/ros_comm/utilities/xmlrpcpp/src/XmlRpcValue.h
 
+CMakeFiles/rys_base_node.dir/src/hbridge.o: ../src/common.hpp
 CMakeFiles/rys_base_node.dir/src/hbridge.o: ../src/hbridge.cpp
+CMakeFiles/rys_base_node.dir/src/hbridge.o: ../src/hbridge.hpp
 

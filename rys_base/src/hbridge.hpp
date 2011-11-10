@@ -18,7 +18,7 @@ public:
 
         void setCurrentPID(int Kp, int Ki, int Kd);
         void setSpeedPID(int Kp, int Ki, int Kd);
-        void deserialize(int time, const MSG &msg);
+        void deserialize(double time, const MSG &msg);
         MSG serialize();
 
         void setSpeed(double vel);
@@ -30,14 +30,22 @@ public:
         bool isRunning();
         bool isValid(double time);
         double getPosition();
+        double getPositionDifference();
         void setMaxPower(int maxPower);
         void setAddress(int address);
+        
+        double currentMeasured;
+        double currentGiven;
+        double speedMeasured;
+        double speedGiven;
+        
 private:
         double vel, cur;
         bool running;
         int curKp, curKi, curKd;
         int velKp, velKi, velKd;
         int posB, encB, updated;
+        int oldPosB;
         unsigned char maxPower;
         int address;
 };

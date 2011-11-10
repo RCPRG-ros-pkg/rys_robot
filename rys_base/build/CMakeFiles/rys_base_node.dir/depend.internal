@@ -33,6 +33,7 @@ CMakeFiles/rys_base_node.dir/src/elektron_base_node.o
  /opt/ros/diamondback/stacks/common_msgs/geometry_msgs/msg_gen/cpp/include/geometry_msgs/Vector3.h
  /opt/ros/diamondback/stacks/common_msgs/geometry_msgs/msg_gen/cpp/include/geometry_msgs/Vector3Stamped.h
  /opt/ros/diamondback/stacks/common_msgs/nav_msgs/msg_gen/cpp/include/nav_msgs/Odometry.h
+ /opt/ros/diamondback/stacks/common_msgs/sensor_msgs/msg_gen/cpp/include/sensor_msgs/Imu.h
  /opt/ros/diamondback/stacks/geometry/bullet/include/LinearMath/btMatrix3x3.h
  /opt/ros/diamondback/stacks/geometry/bullet/include/LinearMath/btMinMax.h
  /opt/ros/diamondback/stacks/geometry/bullet/include/LinearMath/btQuadWord.h
@@ -99,4 +100,6 @@ CMakeFiles/rys_base_node.dir/src/elektron_base_node.o
  /opt/ros/diamondback/stacks/ros_comm/utilities/rostime/include/ros/time.h
  /opt/ros/diamondback/stacks/ros_comm/utilities/xmlrpcpp/src/XmlRpcValue.h
 CMakeFiles/rys_base_node.dir/src/hbridge.o
+ /home/eee/ros/rys_robot/rys_base/src/common.hpp
  /home/eee/ros/rys_robot/rys_base/src/hbridge.cpp
+ /home/eee/ros/rys_robot/rys_base/src/hbridge.hpp
