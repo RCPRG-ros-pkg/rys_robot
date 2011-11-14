@@ -145,6 +145,12 @@ void Protonek::Balance2(double time, bool reset) {
         static double sOUTprev = 0;
         static double vel = 0;
 
+        if (!orientation.isValid(time)) {
+//                ROS_DEBUG("no gyro/acc data!");
+//                state = STOPPING;
+//                return;
+        }
+        
         if (reset) {
             sERRprev2 = 0;
             sERRprev = 0;
@@ -160,7 +166,7 @@ void Protonek::Balance2(double time, bool reset) {
         if (addedAngleMul < 0)
                 addedAngleMul = 0;
 
-        addedAngle *= 1.0 - addedAngleMul;
+//        addedAngle *= 1.0 - addedAngleMul;
 
         // regulator PID
         double sERRt = orientation.pitchGyro-(balanceAngle + 8*(addedAngle));
@@ -172,7 +178,8 @@ void Protonek::Balance2(double time, bool reset) {
 //            sERRt = sERRt*sERRt / 20;
 
         double sOUTt = sOUTprev + ((sERRt * A + sERRprev * B + sERRprev2 * C)/2);
-        if (sOUTt<0.8 && sOUTt>-0.8)	// ograniczenie calkowania
+
+        if (sOUTt<0.8 && sOUTt>-0.8)    // ograniczenie calkowania
         {
                 sERRprev2 = sERRprev;
                 sERRprev = sERRt;
@@ -183,6 +190,8 @@ void Protonek::Balance2(double time, bool reset) {
             sOUTt = -0.8;
         if (sOUTt>0.8)
             sOUTt = 0.8;
+
+//        ROS_DEBUG("%lf   %lf", sOUTt, sERRt);
 
         double reaction = sOUTt;
 
@@ -214,10 +223,11 @@ void Protonek::Balance2(double time, bool reset) {
                 bridgeR.setSpeed(-vel2 - turn);
                 bridgeL.setSpeed(vel2 - turn);
         } else {
-                bridgeL.setCurrent(vel2*0.7);
-                bridgeR.setCurrent(-vel2*0.7);
+//                bridgeR.setSpeed(0);
+//                bridgeL.setSpeed(0);
+                bridgeL.setCurrent(vel2*0.7 + turn);
+                bridgeR.setCurrent(-vel2*0.7 + turn);
         }
-        
 
         //s.rcur = -(vel2 + turn);
         //s.lcur = (vel2 - turn);
@@ -438,6 +448,7 @@ void Protonek::stateBalancing(double time, double interval) {
         
         if (verticalTime < 0.5) {
                 Balance2(time,true);      // reset regulatorow balansowania
+//                throw;
         }
         else {
                 Balance2(time,false);
@@ -484,7 +495,18 @@ void Protonek::update() {
         static double time = 0;
         time += interval;               // czas skumulowany
 
-        if (elapsed>0.01) {
+        if (elapsed>0.02) {
+
+
+        if (elapsed > 0.2) {
+                ROS_DEBUG("too long: %lf", elapsed);
+                throw;
+        }
+//        ROS_DEBUG("UPDATE");
+
+        if (!orientation.isValid(time)) {
+                ROS_DEBUG("no gyro/acc data!");
+        }
                 switch (state) {
                 case TELEOP:
                         stateTeleop();
@@ -604,7 +626,7 @@ void Protonek::updateOdometry() {
 
     if (ldif > 1 || ldif < -1 || rdif > 1 || rdif < -1)
     {
-            ROS_DEBUG("%lf  %lf", ldif, rdif);    
+//            ROS_DEBUG("%lf  %lf", ldif, rdif);    
             throw;
     }
     ll += ldif;    
@@ -649,7 +671,7 @@ bool Protonek::isConnected() {
 }
 
 Protonek::Orientation::Orientation() : accX(100), accY(100), accZ(100),
-        pitch(0), oldPitch(0), updated(-100), updated2(-101) {
+        pitch(0), oldPitch(0), updated(-100), updated2(-101), pitchGyro(0) {
 }
 
 void Protonek::Orientation::update(int accX, int accY, int accZ, int g, double time) {
@@ -688,7 +710,7 @@ void Protonek::Orientation::update(int accX, int accY, int accZ, int g, double t
     
     pitchGyro += (pitch - pitchGyro)*0.1;
 
-ROS_DEBUG("%lf    %lf",pitch,pitchGyro);
+//ROS_DEBUG("%lf    %lf",pitch,pitchGyro);
     dpitch = pitchGyro - oldPitch;
     oldPitch = pitchGyro;
     
@@ -698,7 +720,7 @@ ROS_DEBUG("%lf    %lf",pitch,pitchGyro);
 }
 
 bool Protonek::Orientation::isValid(double time) {
-        return (time-updated)<0.1;
+        return (time-updated)<0.2;
 }
 
 double Protonek::Orientation::getPitch() {
@@ -751,7 +773,7 @@ void Protonek::Trick::setAngle(double th) {
                         angleOld += 3.1415 * 2.0;
                 }
 */
-                ROS_DEBUG("%lf     %lf", th, angleAccum);
+//                ROS_DEBUG("%lf     %lf", th, angleAccum);
                 angleAccum += (th-angleOld);
                 angleOld = th;
         }
