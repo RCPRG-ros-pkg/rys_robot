@@ -30,7 +30,9 @@ public:
         bool isRunning();
         bool isValid(double time);
         double getPosition();
+        double getPositionA();
         double getPositionDifference();
+        double getPositionDifferenceA();
         void setMaxPower(int maxPower);
         void setAddress(int address);
         
@@ -44,8 +46,8 @@ private:
         bool running;
         int curKp, curKi, curKd;
         int velKp, velKi, velKd;
-        int posB, encB, updated;
-        int oldPosB;
+        int posB, encB, updated, posA, encA;
+        int oldPosB, oldPosA;
         unsigned char maxPower;
         int address;
 };

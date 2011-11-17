@@ -109,7 +109,22 @@ int main(int argc, char** argv) {
 
         double balanceAngle;
         nh.param<double>("balance_angle",balanceAngle, 90);
-        
+
+        double Kp, Ki, Kd;
+        nh.param<double>("angleKp", Kp, 0.01);
+        nh.param<double>("angleKi", Ki,0.0);
+        nh.param<double>("angleKd", Kd,0.0);
+
+        double avKp, avKi, avKd;
+        nh.param<double>("avKp", avKp, 0.0000005);
+        nh.param<double>("avKi", avKi,0.0);
+        nh.param<double>("avKd", avKd,0.0);
+
+        double lvKp, lvKi, lvKd;
+        nh.param<double>("lvKp", lvKp, 0.5);
+        nh.param<double>("lvKi", lvKi,0.0);
+        nh.param<double>("lvKd", lvKd,0.0);
+                
         nav_msgs::Odometry odom;
         odom.header.frame_id = "odom";
         odom.child_frame_id = "base_link";
@@ -131,6 +146,10 @@ int main(int argc, char** argv) {
         else
                 p->disableSpeedRegulator();
 
+        p->setupPIDangle(Kp,Ki,Kd);
+        p->setupPIDangularVelocity(avKp,avKi,avKd);
+        p->setupPIDlinearVelocity(lvKp,lvKi,lvKd);
+        
         p->balanceAngle = balanceAngle;
         
         double angular_pos = 0;

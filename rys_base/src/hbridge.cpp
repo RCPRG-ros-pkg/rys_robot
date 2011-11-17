@@ -10,7 +10,7 @@
 
 HBridge::HBridge() : vel(0), cur(0), running(false), curKp(0),
 curKi(0), curKd(0), velKp(0), velKi(0), velKd(0), posB(0), oldPosB(0), encB(0),
-updated(0), maxPower(0), address(1) {
+updated(0), maxPower(0), address(1), posA(0), oldPosA(0), encA(0) {
 }
 
 HBridge::~HBridge(){
@@ -44,7 +44,20 @@ void HBridge::deserialize(double time, const MSG &msg){
     msg.d[10];  // encoder B high
     msg.d[11];  // 0
 */
-
+// encA
+    int distanceA = msg.d[7] | ((int)msg.d[8]<<8);
+    if (encA > 50000 && distanceA < 10000) {         // przekrecilo sie w gore
+            encA -= 0x10000;
+    } else if (encA < 10000 && distanceA > 50000) {	// przekrecilo sie w dol
+            encA += 0x10000;
+    }
+    
+    if (encA - distanceA > -200 && encA - distanceA < 200)
+        posA += encA - distanceA;
+    encA = distanceA;
+    updated = time;
+    
+//encB
     int distanceB = (int)msg.d[9] | ((int)msg.d[10]<<8);
     if (encB > 50000 && distanceB < 10000) {	// przekrecilo sie w gore
             encB -= 0x10000;
@@ -60,7 +73,8 @@ void HBridge::deserialize(double time, const MSG &msg){
     currentGiven = msg.d[5];
     currentMeasured = msg.d[4];
     speedGiven = msg.d[3];
-    speedMeasured = msg.d[2];
+    speedMeasured = ((char)msg.d[2]);
+//    speedMeasured = 
 }
 
 MSG HBridge::serialize(){
@@ -114,6 +128,13 @@ void HBridge::setCurrent(double cur){
         cur = 1;
     if (cur < -1)
         cur = -1;
+        
+//    if ((cur > -0.001 && cur < 0.001)) {
+//            if (this->cur < 0)
+//                    this->cur = -0.001;
+//            else
+//                    this->cur = 0.001;
+//    } else
     this->cur = cur;
 }
 
@@ -137,9 +158,19 @@ double HBridge::getPosition() {
         return posB;
 }
 
+double HBridge::getPositionA() {
+        return posA;
+}
+
 double HBridge::getPositionDifference() {
         double result = posB - oldPosB;
         oldPosB = posB;
+        return result;
+}
+
+double HBridge::getPositionDifferenceA() {
+        double result = posA - oldPosA;
+        oldPosA = posA;
         return result;
 }
 

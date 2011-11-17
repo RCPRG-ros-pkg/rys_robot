@@ -54,14 +54,17 @@ public:
 
         void update();
 
-//        void setVelocity(double lvel, double rvel);
         void getVelocity(double &lvel, double &rvel);
 
         void SetPower(double lvel, double rvel);
 
         void setupPIDmotorA(int Kp, int Ki, int Kd);
         void setupPIDmotorB(int Kp, int Ki, int Kd);
-        
+
+        void setupPIDangle(double Kp, double Ki, double Kd);
+        void setupPIDangularVelocity(double Kp, double Ki, double Kd);
+        void setupPIDlinearVelocity(double Kp, double Ki, double Kd);
+
         void AddPortName(const char* port);
 
         double getPitch();
@@ -116,13 +119,29 @@ private:
         void stateBalancing(double time, double interval);
         void stateStopping(double interval);
         void stateGettingUp();
-                
+
+        bool getMeanAngularVelocity(double &mean);
+        bool getMeanLinearVelocity(double &mean);
+
+        double angularVelocityPID(double thvel);
+        double linearVelocityPID(double xvel);
+
         // serial port descriptor
         int fd;
         struct termios oldtio;
         bool connected;
 
+        double ldif, rdif;
         
+        // PID angle
+        double aKp, aKi, aKd;
+        
+        // PID angular velocity
+        double avKp, avKi, avKd;
+
+        // PID linear velocity
+        double lvKp, lvKi, lvKd;
+
         double xpos;
         double ypos;
         double apos;
@@ -131,7 +150,7 @@ private:
 
         std::ofstream of;
 
-        void Balance2(double time, bool reset);
+        void Balance3(double time, bool reset);
         void Send();
         void Receive(double time);
 
@@ -139,10 +158,7 @@ private:
 
         bool isBalancing;
 
-//        double rvel, lvel;
-
         bool speedRegulator;
-
                 
         class Orientation {
         public:

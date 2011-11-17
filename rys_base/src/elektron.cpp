@@ -33,7 +33,7 @@ double ang_nor_rad(double rad) {
 
 Protonek::Protonek(const std::string& port, const Protonek::Parameters &parL,
                     const Protonek::Parameters &parR,  int baud)
-                    : isBalancing(false), speedRegulator(true),
+                    : isBalancing(false), speedRegulator(true), ldif(0), rdif(0),
                     state(STOPPING) {
 
         bridgeL.setCurrentPID(parL.currentKp, parL.currentKi, parL.currentKd);
@@ -131,7 +131,7 @@ double Protonek::getInterval()
         tv_old = tv;
         return result;
 }
-
+/*
 void Protonek::Balance2(double time, bool reset) {
 
         const double Kp = 0.020 * 1.7;//2;
@@ -232,6 +232,155 @@ void Protonek::Balance2(double time, bool reset) {
         //s.rcur = -(vel2 + turn);
         //s.lcur = (vel2 - turn);
 }
+*/
+
+void Protonek::setupPIDangularVelocity(double Kp, double Ki, double Kd) {
+        avKp = Kp;
+        avKi = Ki;
+        avKd = Kd;
+}
+
+void Protonek::setupPIDlinearVelocity(double Kp, double Ki, double Kd) {
+        lvKp = Kp;
+        lvKi = Ki;
+        lvKd = Kd;
+}
+
+void Protonek::setupPIDangle(double Kp, double Ki, double Kd) {
+        aKp = Kp;
+        aKi = Ki;
+        aKd = Kd;
+}
+
+double Protonek::angularVelocityPID(double thvel) {
+        double A = avKp + avKi + avKd;
+        double B = -(avKp + 2 * avKd);
+        double C =  avKd;
+        static double sERRprev2 = 0;
+        static double sERRprev = 0;
+        static double sOUTprev = 0;
+        static double sOUTt = 0;
+
+        double mean = 0;
+        
+        if (!getMeanAngularVelocity(mean))
+                return sOUTt;
+
+                        
+//        mean*=10000;
+        ROS_DEBUG("                    ang: %lf   %lf",thvel, mean);
+
+        // regulator PID
+        double sERRt = mean - thvel;
+
+        sOUTt = sOUTprev + ((sERRt * A + sERRprev * B + sERRprev2 * C)/2);
+
+        if (sOUTt<0.9 && sOUTt>-0.9)    // ograniczenie calkowania
+        {
+                sERRprev2 = sERRprev;
+                sERRprev = sERRt;
+                sOUTprev = sOUTt;
+        }
+
+//        ROS_DEBUG("sERR:%lf    sOUT:%lf", sERRt, sOUTt);
+
+
+//        ROS_DEBUG("%lf    %lf", bridgeL.speedMeasured, bridgeR.speedMeasured);
+        return sOUTt;
+}
+
+double Protonek::linearVelocityPID(double xvel) {
+        double A = lvKp + lvKi + lvKd;
+        double B = -(lvKp + 2 * lvKd);
+        double C =  lvKd;
+        static double sERRprev2 = 0;
+        static double sERRprev = 0;
+        static double sOUTprev = 0;
+        static double sOUTt = 0;
+
+        double mean = 0;
+        
+        if (!getMeanLinearVelocity(mean))
+                return sOUTt;
+
+//        mean*=10000; 
+//        ROS_DEBUG("%lf",mean);
+        ROS_DEBUG("lin: %lf   %lf",xvel, mean);
+
+        // regulator PID
+        double sERRt = mean - xvel;
+
+        sOUTt = sOUTprev + ((sERRt * A + sERRprev * B + sERRprev2 * C)/2);
+
+        if (sOUTt<0.8 && sOUTt>-0.8)    // ograniczenie calkowania
+        {
+                sERRprev2 = sERRprev;
+                sERRprev = sERRt;
+                sOUTprev = sOUTt;
+        }
+
+//        ROS_DEBUG("sERR:%lf    sOUT:%lf", sERRt, sOUTt);
+
+
+//        ROS_DEBUG("%lf    %lf", bridgeL.speedMeasured, bridgeR.speedMeasured);
+        return sOUTt;
+}
+
+void Protonek::Balance3(double time, bool reset) {
+
+        double A = aKp + aKi + aKd;
+        double B = -(aKp + 2 * aKd);
+        double C =  aKd;
+        static double sERRprev2 = 0;
+        static double sERRprev = 0;
+        static double sOUTprev = 0;
+        static double vel = 0;
+
+        if (reset) {
+            sERRprev2 = 0;
+            sERRprev = 0;
+            sOUTprev = 0;
+            vel = 0;
+        }
+
+//        double addedAngle = linearVelocityPID(joystick.speedLinear*0.001);
+//        double turn = angularVelocityPID(joystick.speedAngular*0.1);
+
+        double turn = -angularVelocityPID(joystick.speedAngular*0.05);
+        double addedAngle = linearVelocityPID(joystick.speedLinear*0.07);
+
+//        lvel = l + t;
+//        rvel = l - t;
+
+//        ROS_DEBUG("a:%lf   t:%lf", 8.0*addedAngle, turn);
+        // regulator PID
+        double sERRt = orientation.pitchGyro-(balanceAngle + 6*(addedAngle));
+
+        double ffadd = sin(3.1415*sERRt/180.0)*(51.0/255.0);
+        
+        double sOUTt = sOUTprev + ((sERRt * A + sERRprev * B + sERRprev2 * C)/2);
+
+        if (sOUTt<0.8 && sOUTt>-0.8)    // ograniczenie calkowania
+        {
+                sERRprev2 = sERRprev;
+                sERRprev = sERRt;
+                
+                sOUTprev = sOUTt;
+        }
+
+        vel = -sOUTt-ffadd;
+
+        if (vel>0.5)
+            vel = 0.5;
+
+        if (vel<-0.5)
+            vel = -0.5;
+
+        bridgeL.setCurrent(vel - turn);
+        bridgeR.setCurrent(-vel - turn);
+}
+// current L: 35 (przy 90st.)
+// current R: 35 (przy 90st.)
 
 void Protonek::Send() {
         MSG msg;
@@ -243,6 +392,7 @@ void Protonek::Send() {
         else
                 device = 1;
 
+//device = 3;
         if (device==1)
         {
             msg = bridgeR.serialize();
@@ -302,7 +452,7 @@ void Protonek::Receive(double time) {
 // answer.d[11]		0
 
 
-                if (crc==0 && answer.header==MSG_HEADER && answer.adr==1)	// crc
+                if (crc==0 && answer.header==MSG_HEADER && answer.adr==1)       // crc
                 {
                         int mocZadana = answer.d[5];
                         int szybkoscZadana = answer.d[3];
@@ -316,6 +466,8 @@ void Protonek::Receive(double time) {
 
                         bridgeL.deserialize(time, answer);
                         //position_left.update(distance,time);
+//ROS_DEBUG("adr = 1");
+    ldif = bridgeL.getPositionDifference()*3.1415*WHEEL_DIAM/ENC_TICKS;
 
                         //static float smoothSpeed = 0;
                         //smoothSpeed = smoothSpeed*0.9 + speed*0.1;
@@ -352,6 +504,8 @@ void Protonek::Receive(double time) {
 
                         bridgeR.deserialize(time, answer);
                         //position_right.update(distance,time);
+//ROS_DEBUG("adr = 2");
+    rdif = -bridgeR.getPositionDifference()*3.1415*WHEEL_DIAM/ENC_TICKS;
 
                         //static float smoothSpeed = 0;
                         //smoothSpeed = smoothSpeed*0.9 + speed*0.1;
@@ -382,6 +536,7 @@ void Protonek::Receive(double time) {
 
                         orientation.update(accX, accY, accZ, ((int)answer.d[10]-117), time);
 
+//ROS_DEBUG("adr = 3");
 
 //                      printf("%d   %d   %d   %d\n", (int)answer.d[8], (int)answer.d[9], (int)answer.d[10], (int)answer.d[11]);
 
@@ -406,6 +561,27 @@ void Protonek::stateTeleop() {
         lvel = lvel>1.0?1.0:(lvel<-1.0?-1.0:lvel);
         rvel = rvel>1.0?1.0:(rvel<-1.0?-1.0:rvel);
 
+//*
+//        double t = angularVelocityPID(joystick.speedAngular*0.05);
+//        double l = -linearVelocityPID(joystick.speedLinear*0.07);
+
+//        lvel = l + t;
+//        rvel = l - t;
+        
+/*/        
+        double turn = (joystick.speedAngular);
+        double linear = (joystick.speedLinear);
+        lvel = linear + turn;
+        rvel = linear - turn;
+
+        double angVel = 0;
+        double linVel = 0;
+        getMeanAngularVelocity(angVel);
+        getMeanLinearVelocity(linVel);
+        ROS_DEBUG("%lf        %lf", linVel, angVel);
+//*/
+
+//        ROS_DEBUG("%lf  %lf        %lf  %lf", joystick.speedLinear, linear, joystick.speedAngular, turn);
         if (joystick.buttonStop) {
                 state = STOPPING;
                 lvel = 0;
@@ -447,11 +623,11 @@ void Protonek::stateBalancing(double time, double interval) {
         static double verticalTime = 0.0;
         
         if (verticalTime < 0.5) {
-                Balance2(time,true);      // reset regulatorow balansowania
+                Balance3(time,true);      // reset regulatorow balansowania
 //                throw;
         }
         else {
-                Balance2(time,false);
+                Balance3(time,false);
         }
         verticalTime += interval;
 
@@ -497,12 +673,19 @@ void Protonek::update() {
 
         if (elapsed>0.02) {
 
+//        ROS_DEBUG("%lf  %lf  %lf  %lf", bridgeL.getPositionA(), bridgeR.getPositionA(),bridgeL.getPosition(), bridgeR.getPosition());
 
-        if (elapsed > 0.2) {
+        static double lpos=0, rpos=0;
+
+//        lpos += ldif;
+//        rpos += rdif;
+//        ROS_DEBUG("%lf   %lf", lpos, rpos);
+
+//ROS_DEBUG("%lf   %lf", ldif, rdif);
+        if (elapsed > 0.8) {
                 ROS_DEBUG("too long: %lf", elapsed);
-                throw;
+                //throw;
         }
-//        ROS_DEBUG("UPDATE");
 
         if (!orientation.isValid(time)) {
                 ROS_DEBUG("no gyro/acc data!");
@@ -525,61 +708,12 @@ void Protonek::update() {
                 Send();
                 elapsed = 0;
                 
-/*                static double verticalTime = 0;
-
-                if (trick.isActive()) {
-                        trick.setAngle(apos);
-                        trick.getVelocity(lvel, rvel);
-                }
-                
-                if (fabs(orientation.getPitch()-balanceAngle)>35) {
-                        isBalancing = false;
-
-                        verticalTime = 0;
-                        
-                        if (speedRegulator) {
-                                bridgeL.setSpeed(lvel);
-                                bridgeR.setSpeed(-rvel);
-                        } else {
-                                bridgeL.setCurrent(lvel*0.7);
-                                bridgeR.setCurrent(-rvel*0.7);
-                        }
-
-                        Send();
-                } else {
-                    isBalancing = true;
-
-                    if (verticalTime < 0.5) {
-                            Balance2(time,true);      // reset regulatorow balansowania
-                        }
-                        else {
-                            Balance2(time,false);
-                        }
-                        verticalTime += interval;
-                        Send();
-                }
-*/
         }
 
         Receive(time);
 
 }
-/*
-void Protonek::setVelocity(double lvel, double rvel)
-{
-        if (lvel>1)
-                lvel = 1;
-        else if (lvel<-1)
-                lvel = -1;
-        this->lvel = lvel;
 
-        if (rvel>1)
-                rvel = 1;
-        else if (rvel<-1)
-                rvel = -1;
-        this->rvel = rvel;
-}
-*/
 void Protonek::SetPower(double lcur, double rcur)
 {
         if (lcur>1)
@@ -608,11 +742,14 @@ double Protonek::getPitch() {
 
 double Protonek::getDPitch() {
     return orientation.getDPitch(0);
+
 }
 
 void Protonek::getVelocity(double &xvel, double &thvel) {
-        double lvel = bridgeL.speedMeasured*WHEEL_DIAM/ENC_TICKS;
-        double rvel = bridgeR.speedMeasured*WHEEL_DIAM/ENC_TICKS;
+//        double lvel = bridgeL.speedMeasured*WHEEL_DIAM/ENC_TICKS;
+//        double rvel = bridgeR.speedMeasured*WHEEL_DIAM/ENC_TICKS;
+        double lvel = ldif;//*WHEEL_DIAM/ENC_TICKS;
+        double rvel = rdif;//*WHEEL_DIAM/ENC_TICKS;
 
         xvel = (lvel + rvel) * 0.5;
         thvel = (lvel - rvel) / AXLE_LENGTH;
@@ -621,8 +758,8 @@ void Protonek::getVelocity(double &xvel, double &thvel) {
 double ll = 0, rr = 0;
 void Protonek::updateOdometry() {
 
-    double ldif = bridgeL.getPositionDifference()*3.1415*WHEEL_DIAM/ENC_TICKS;
-    double rdif = bridgeR.getPositionDifference()*3.1415*WHEEL_DIAM/ENC_TICKS;
+//    ldif = bridgeL.getPositionDifference()*3.1415*WHEEL_DIAM/ENC_TICKS;
+//    rdif = bridgeR.getPositionDifference()*3.1415*WHEEL_DIAM/ENC_TICKS;
 
     if (ldif > 1 || ldif < -1 || rdif > 1 || rdif < -1)
     {
@@ -639,6 +776,51 @@ void Protonek::updateOdometry() {
     
     xpos += dist * cos(apos);
     ypos += dist * sin(apos);
+}
+
+bool Protonek::getMeanAngularVelocity(double &mean) {
+        double xvel, thvel;
+        
+        getVelocity(xvel, thvel);
+
+        const int count = 4;
+        static double m[count];
+        static int index = 0;
+
+        m[index] = thvel;
+        index = (index+1)%count;
+
+        if (index == 0) {        
+                mean = 0;
+                for (int i=0; i<count; ++i)
+                        mean += m[i];
+                mean /= count;
+                return true;
+        }
+
+        return false;
+}
+
+bool Protonek::getMeanLinearVelocity(double &mean) {
+        double xvel, thvel;
+        
+        getVelocity(xvel, thvel);
+//        ROS_DEBUG("%lf   %lf", xvel, thvel);
+        const int count = 4;
+        static double m[count];
+        static int index = 0;
+
+        m[index] = xvel;
+        index = (index+1)%count;
+        if (index == 0) {        
+                mean = 0;
+                for (int i=0; i<count; ++i)
+                        mean += m[i];
+
+                mean /= count;
+                return true;
+        }                
+        return false;
 }
 
 void Protonek::getOdometry(double &x, double &y, double &a) {
@@ -725,7 +907,6 @@ bool Protonek::Orientation::isValid(double time) {
 
 double Protonek::Orientation::getPitch() {
     return pitch;
-    //return pitch2 + (pitch2-pitch)*2;
 }
 
 double Protonek::Orientation::getDPitch(double time) {
