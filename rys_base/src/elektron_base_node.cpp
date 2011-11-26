@@ -11,43 +11,6 @@ ros::Time cmd_time;
 Protonek *p;
 
 void twistCallback(const geometry_msgs::TwistConstPtr& msg) {
-/*        double rotational_term = msg->angular.z;
-        double rvel = -msg->linear.x + rotational_term;
-        double lvel = -msg->linear.x - rotational_term;
-
-        if (rvel > 1.0)
-                rvel = 1.0;
-        if (rvel < -1.0)
-                rvel = -1.0;
-
-        if (lvel > 1.0)
-                lvel = 1.0;
-        if (lvel < -1.0)
-                lvel = -1.0;
-
-        // turbo button
-        if (msg->angular.x < 0.5)
-        {
-                rvel /= 2.0;
-                lvel /= 2.0;
-        }
-
-        // stop button
-        if (msg->angular.y > 0.5)
-                p->stopMotors();
-        else
-                p->runMotors();
-
-        // feature 1 button
-        if (msg->linear.y > 0.5)
-                p->trick1();
-
-        // feature 2 button
-        if (msg->linear.z > 0.5)
-                p->trick2();
-
-        p->setVelocity(lvel, rvel);
-*/        
 
         // turbo button
         p->joystick.buttonTurbo = (msg->angular.x > 0.5);
@@ -81,9 +44,10 @@ int main(int argc, char** argv) {
 
         ros::Rate loop_rate(100);
 
-        std::string dev;
+        std::string dev, dev2;
         
         nh.param<std::string>("device", dev, "/dev/ttyUSB0");
+        nh.param<std::string>("device2", dev2, "/dev/ttyUSB1");
 
         Protonek::Parameters parL, parR;
         // lewy mostek
@@ -139,7 +103,7 @@ int main(int argc, char** argv) {
         speedR.header.frame_id = "speedR";
 
         // initialize hardware
-        p = new Protonek(dev, parL, parR);
+        p = new Protonek(dev, dev2, parL, parR);
 
         if (useSpeedRegulator)
                 p->enableSpeedRegulator();
@@ -157,7 +121,7 @@ int main(int argc, char** argv) {
 
                 while (ros::ok()) {
                         double x, y, th, xvel, thvel;
-                        double accX, accY, accZ, omegaY, pitch, pitch2;
+                        double accX, accY, accZ, omegaZ, pitch, pitch2, destAngle;
 
                         ros::Time current_time = ros::Time::now();
 
@@ -165,7 +129,7 @@ int main(int argc, char** argv) {
                         p->updateOdometry();
                         p->getOdometry(x, y, th);
                         p->getVelocity(xvel, thvel);
-                        p->getImu(accX, accY, accZ, omegaY, pitch, pitch2);
+                        p->getImu(accX, accY, accZ, omegaZ, pitch, pitch2, destAngle);
 
                         //since all odometry is 6DOF we'll need a quaternion created from yaw
                         geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(th);
@@ -189,7 +153,8 @@ int main(int argc, char** argv) {
                         //set the velocity
                         odom.child_frame_id = "base_link";
                         odom.twist.twist.linear.x = xvel;
-                        odom.twist.twist.linear.y = 0.0;
+                        odom.twist.twist.linear.y = p->GetHorizontalAcceleration();
+                        p->getMeanLinearVelocity(odom.twist.twist.linear.z);
                         odom.twist.twist.angular.z = thvel;
 
                         //publish the message
@@ -200,11 +165,10 @@ int main(int argc, char** argv) {
 
                         imu.orientation.x = pitch;
                         imu.orientation.y = pitch2;
+                        imu.orientation.z = destAngle;
                         imu.orientation_covariance[0] = 0.01;
 
-//angular_pos += (omegaY+3)*0.1;
-
-                        imu.angular_velocity.y = omegaY;          // odczyt z gyro
+                        imu.angular_velocity.y = omegaZ;          // odczyt z gyro
                         imu.angular_velocity.z = 0;          // odczyt z gyro
                         imu.angular_velocity_covariance[0] = 0.01;
                         imu.angular_velocity_covariance[3] = 0.01;

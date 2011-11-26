@@ -49,7 +49,7 @@ public:
                 int maxCurrent;
         };
         
-        Protonek(const std::string& port, const Parameters &parL, const Parameters &parR, int baud = BAUD);
+        Protonek(const std::string& port, const std::string& port2, const Parameters &parL, const Parameters &parR, int baud = BAUD);
         ~Protonek();
 
         void update();
@@ -79,8 +79,11 @@ public:
         void getRawOdometry(double &linc, double &rinc);
         void getOdometry(double &x, double &y, double &a);
         void setOdometry(double x, double y, double a);
-        void getImu(double &accX, double &accY, double &accZ, double &omegaY, double &pitch, double &pitch2);
-        
+        void getImu(double &accX, double &accY, double &accZ, double &omegaZ,
+                        double &pitch, double &pitch2, double &destPitch);
+
+        double GetHorizontalAcceleration();
+                
         bool isConnected();
 
         double m_per_tick;
@@ -109,6 +112,8 @@ public:
                 bool buttonGetUp;
                 bool buttonTrick;
         } joystick;
+
+        bool getMeanLinearVelocity(double &mean);
         
 private:
         // state
@@ -121,16 +126,23 @@ private:
         void stateGettingUp();
 
         bool getMeanAngularVelocity(double &mean);
-        bool getMeanLinearVelocity(double &mean);
 
-        double angularVelocityPID(double thvel);
-        double linearVelocityPID(double xvel);
+        double angularVelocityPID(double thvel, bool reset);
+        double linearVelocityPID(double xvel, bool reset);
 
         // serial port descriptor
-        int fd;
-        struct termios oldtio;
+        int fdRs485;
+        struct termios oldtioRs485;
         bool connected;
 
+        // serial port descriptor - second device
+        int fdImu;
+        struct termios oldtioImu;
+        bool connected2;
+
+        int OpenImuDevice(const std::string& port, struct termios &oldtio);
+        void ReceiveImu(double time);
+        
         double ldif, rdif;
         
         // PID angle
@@ -142,6 +154,8 @@ private:
         // PID linear velocity
         double lvKp, lvKi, lvKd;
 
+        double destAngle;
+        
         double xpos;
         double ypos;
         double apos;
@@ -150,7 +164,7 @@ private:
 
         std::ofstream of;
 
-        void Balance3(double time, bool reset);
+        void Balance3(bool reset);
         void Send();
         void Receive(double time);
 
@@ -159,42 +173,47 @@ private:
         bool isBalancing;
 
         bool speedRegulator;
-                
+
+        void getUp();
+        
+        struct GettingUpData {
+                int ticks;
+                double cur;                
+        } gettingUpData;
+                        
         class Orientation {
         public:
                 Orientation();
                 void update(int accX, int accY, int accZ, int gyro, double time);
+                void updateFromImu(int accX, int accY, int accZ, int omegaY, int omegaZ, double time);
                 bool isValid(double time);
                 double getPitch();
                 double getDPitch(double time);
                 double getInterval();
 
-                int accX,accY,accZ;	// pomiar przyspieszenia
-                int omegaY;
+                int accX,accY,accZ;     // pomiar przyspieszenia
+                int omegaY, omegaZ;
                 double pitchGyro;
         private:
-                double updated;		// czas uaktualnienia
-                double updated2;	// poprzedni czas uaktualnienia
-                double pitch, oldPitch;	// kat i szybkosc katowa wzdluz osi kol
+                double updated;         // czas uaktualnienia
+                double updated2;        // poprzedni czas uaktualnienia
+                double pitch, oldPitch; // kat i szybkosc katowa wzdluz osi kol
                 double pitch2;
                 double dpitch;
                 
         } orientation;
 
-        class Trick {
+        class FilteredDouble {
         public:
-                Trick();
+                FilteredDouble(int count, double init);
+                ~FilteredDouble();
                 
-                void getVelocity(double& lvel, double& rvel);
-                void setAngle(double th);
-                bool isActive();
-                void start();
-                
+                double SetGet(double d);
         private:
-                bool active;
-                double angleAccum;
-                double angleOld;
-        } trick;
+                double *m;
+                int count;
+                int index;        
+        };
 };
 
 #endif /* ELEKTRON_HPP_ */

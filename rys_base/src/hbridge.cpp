@@ -129,13 +129,13 @@ void HBridge::setCurrent(double cur){
     if (cur < -1)
         cur = -1;
         
-//    if ((cur > -0.001 && cur < 0.001)) {
-//            if (this->cur < 0)
-//                    this->cur = -0.001;
-//            else
-//                    this->cur = 0.001;
-//    } else
-    this->cur = cur;
+    if ((cur > -0.001 && cur < 0.001)) {
+            if (this->cur < 0)
+                    this->cur = -0.001;
+            else
+                    this->cur = 0.001;
+    } else
+            this->cur = cur;
 }
 
 void HBridge::Run(){

@@ -40,7 +40,7 @@ public:
         double currentGiven;
         double speedMeasured;
         double speedGiven;
-        
+
 private:
         double vel, cur;
         bool running;
@@ -50,6 +50,8 @@ private:
         int oldPosB, oldPosA;
         unsigned char maxPower;
         int address;
+        
+        
 };
 
 #endif // HBRIDGE_HH_
