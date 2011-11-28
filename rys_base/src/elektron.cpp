@@ -34,7 +34,7 @@ double ang_nor_rad(double rad) {
 Protonek::Protonek(const std::string& port0, const std::string& port1, const Protonek::Parameters &parL,
                     const Protonek::Parameters &parR,  int baud)
                     : isBalancing(false), speedRegulator(true), ldif(0), rdif(0),
-                    state(STOPPING), destAngle(0) {
+                    state(STOPPING), destAngle(0), ldifOdom(0), rdifOdom(0) {
 
         std::string devRs485Name;
 
@@ -241,9 +241,6 @@ double Protonek::angularVelocityPID(double thvel, bool reset) {
         if (!getMeanAngularVelocity(mean))
                 return sOUTt;
 
-//        static FilteredDouble angSpeed(16, 0);
-//        mean = angSpeed.SetGet(orientation.omegaY)*0.001*0.01;
-
         // regulator PID
         double sERRt = mean - thvel;
 
@@ -285,9 +282,6 @@ double Protonek::linearVelocityPID(double xvel, bool reset) {
 
         // regulator PID
         double sERRt = mean - xvel;
-
-//        if (mean > 0.03 || mean < -0.03)
-//                sOUTprev = 0;
 
         sOUTt = sOUTprev + ((sERRt * A + sERRprev * B + sERRprev2 * C)/2);
 
@@ -416,7 +410,8 @@ void Protonek::Receive(double time) {
 
                         bridgeL.deserialize(time, answer);
                         ldif = bridgeL.getPositionDifference()*3.1415*WHEEL_DIAM/ENC_TICKS;
-
+                        ldifOdom += ldif;
+                        
                         trans_OK = true;
                         receivedCorrectData = true;
 
@@ -431,6 +426,7 @@ void Protonek::Receive(double time) {
 
                         bridgeR.deserialize(time, answer);
                         rdif = -bridgeR.getPositionDifference()*3.1415*WHEEL_DIAM/ENC_TICKS;
+                        rdifOdom += rdif;
 
                         trans_OK = true;
                         receivedCorrectData = true;
@@ -692,19 +688,17 @@ void Protonek::getVelocity(double &xvel, double &thvel) {
 double ll = 0, rr = 0;
 void Protonek::updateOdometry() {
 
-    if (ldif > 1 || ldif < -1 || rdif > 1 || rdif < -1)
-    {
-//            ROS_DEBUG("%lf  %lf", ldif, rdif);    
-//            throw;
-    }
-    ll += ldif;
-    rr += rdif;    
-    apos += (ldif+rdif)/(AXLE_LENGTH);
+    ll += ldifOdom;
+    rr += rdifOdom;
+    apos += (ldifOdom+rdifOdom)/(AXLE_LENGTH);
     
-    double dist = (ldif-rdif)/2;
+    double dist = (ldifOdom-rdifOdom)/2;
     
     xpos += dist * cos(apos);
     ypos += dist * sin(apos);
+    
+    ldifOdom = 0;
+    rdifOdom = 0;
 }
 
 bool Protonek::getMeanAngularVelocity(double &mean) {

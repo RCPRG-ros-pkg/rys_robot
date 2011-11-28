@@ -46,9 +46,9 @@ void HBridge::deserialize(double time, const MSG &msg){
 */
 // encA
     int distanceA = msg.d[7] | ((int)msg.d[8]<<8);
-    if (encA > 50000 && distanceA < 10000) {         // przekrecilo sie w gore
+    if (encA > 50000 && distanceA < 10000) {            // przekrecilo sie w gore
             encA -= 0x10000;
-    } else if (encA < 10000 && distanceA > 50000) {	// przekrecilo sie w dol
+    } else if (encA < 10000 && distanceA > 50000) {     // przekrecilo sie w dol
             encA += 0x10000;
     }
     
@@ -59,9 +59,9 @@ void HBridge::deserialize(double time, const MSG &msg){
     
 //encB
     int distanceB = (int)msg.d[9] | ((int)msg.d[10]<<8);
-    if (encB > 50000 && distanceB < 10000) {	// przekrecilo sie w gore
+    if (encB > 50000 && distanceB < 10000) {            // przekrecilo sie w gore
             encB -= 0x10000;
-    } else if (encB < 10000 && distanceB > 50000) {	// przekrecilo sie w dol
+    } else if (encB < 10000 && distanceB > 50000) {     // przekrecilo sie w dol
             encB += 0x10000;
     }
     
@@ -71,7 +71,11 @@ void HBridge::deserialize(double time, const MSG &msg){
     updated = time;
     
     currentGiven = msg.d[5];
-    currentMeasured = msg.d[4];
+    if (cur < 0)
+        currentMeasured = -msg.d[4];
+    else
+        currentMeasured = msg.d[4];
+        
     speedGiven = msg.d[3];
     speedMeasured = ((char)msg.d[2]);
 //    speedMeasured = 
@@ -88,7 +92,7 @@ MSG HBridge::serialize(){
         msg.d[0] = fabs(cur*255);   // current
         msg.d[8] = vel*60;          // speed
         if (cur<0)
-            msg.d[1] = 0;		// direction
+            msg.d[1] = 0;               // direction
         else
             msg.d[1] = 1;
     } else {
@@ -97,13 +101,13 @@ MSG HBridge::serialize(){
         msg.d[1] = 0;       // direction
     }
 
-    msg.d[2] = curKp;	// P (current)
-    msg.d[3] = curKi;	// I (current)
-    msg.d[4] = curKd;	// D (current)
+    msg.d[2] = curKp;   // P (current)
+    msg.d[3] = curKi;   // I (current)
+    msg.d[4] = curKd;   // D (current)
 
-    msg.d[5] = velKp;	// P (speed)
-    msg.d[6] = velKi;	// I (speed)
-    msg.d[7] = velKd;	// D (speed)
+    msg.d[5] = velKp;   // P (speed)
+    msg.d[6] = velKi;   // I (speed)
+    msg.d[7] = velKd;   // D (speed)
 
     msg.d[9] = maxPower;
     msg.d[10] = 0;

@@ -144,6 +144,7 @@ private:
         void ReceiveImu(double time);
         
         double ldif, rdif;
+        double ldifOdom, rdifOdom;
         
         // PID angle
         double aKp, aKi, aKd;

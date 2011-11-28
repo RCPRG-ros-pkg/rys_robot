@@ -37,8 +37,10 @@ int main(int argc, char** argv) {
         ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu> ("imu", 1);
         ros::Publisher currentL_pub = n.advertise<geometry_msgs::PointStamped> ("currentL", 1);
         ros::Publisher currentR_pub = n.advertise<geometry_msgs::PointStamped> ("currentR", 1);
+        ros::Publisher current_pub = n.advertise<geometry_msgs::PointStamped> ("current", 1);
         ros::Publisher speedL_pub = n.advertise<geometry_msgs::PointStamped> ("speedL", 1);
         ros::Publisher speedR_pub = n.advertise<geometry_msgs::PointStamped> ("speedR", 1);
+        ros::Publisher speed_pub = n.advertise<geometry_msgs::PointStamped> ("speed", 1);
 
         ros::Subscriber twist_sub = n.subscribe("cmd_vel", 1, &twistCallback);
 
@@ -96,11 +98,13 @@ int main(int argc, char** argv) {
         sensor_msgs::Imu imu;
         imu.header.frame_id = "imu";
         
-        geometry_msgs::PointStamped currentL, currentR, speedL, speedR;
+        geometry_msgs::PointStamped currentL, currentR, speedL, speedR, current, speed;
         currentL.header.frame_id = "currentL";
         currentR.header.frame_id = "currentR";
+        current.header.frame_id = "current";
         speedL.header.frame_id = "speedL";
         speedR.header.frame_id = "speedR";
+        speed.header.frame_id = "speed";
 
         // initialize hardware
         p = new Protonek(dev, dev2, parL, parR);
@@ -141,7 +145,8 @@ int main(int argc, char** argv) {
                         odom.pose.pose.position.x = x;
                         odom.pose.pose.position.y = y;
                         odom.pose.pose.position.z = 0.0;
-                        odom.pose.pose.orientation = odom_quat;
+                        //odom.pose.pose.orientation = odom_quat;
+                        odom.pose.pose.orientation.z = th;
 
                         odom.pose.covariance[0] = 0.00001;
                         odom.pose.covariance[7] = 0.00001;
@@ -203,6 +208,16 @@ int main(int argc, char** argv) {
                         speedR.point.y = p->bridgeR.speedGiven;
                         speedR.header.stamp = current_time;
                         speedR_pub.publish(speedR);
+
+                        current.point.x = (p->bridgeR.currentMeasured+p->bridgeL.currentMeasured)*0.5;
+                        current.point.y = (p->bridgeR.currentGiven+p->bridgeL.currentGiven)*0.5;
+                        current.header.stamp = current_time;
+                        current_pub.publish(current);
+
+                        speed.point.x = (p->bridgeR.speedMeasured+p->bridgeL.speedMeasured)*0.5;
+                        speed.point.y = (p->bridgeR.speedGiven+p->bridgeL.speedGiven)*0.5;
+                        speed.header.stamp = current_time;
+                        speed_pub.publish(speed);
                         
                         ros::spinOnce();
                         loop_rate.sleep();
