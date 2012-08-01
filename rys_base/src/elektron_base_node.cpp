@@ -124,14 +124,14 @@ int main(int argc, char** argv) {
         if (p->isConnected()) {
 
                 while (ros::ok()) {
-                        double x, y, th, xvel, thvel;
+                        double x, y, dist, th, xvel, thvel;
                         double accX, accY, accZ, omegaZ, pitch, pitch2, destAngle;
 
                         ros::Time current_time = ros::Time::now();
 
                         p->update();
                         p->updateOdometry();
-                        p->getOdometry(x, y, th);
+                        p->getOdometry(x, y, th, dist);
                         p->getVelocity(xvel, thvel);
                         p->getImu(accX, accY, accZ, omegaZ, pitch, pitch2, destAngle);
 
@@ -144,7 +144,7 @@ int main(int argc, char** argv) {
                         //set the position
                         odom.pose.pose.position.x = x;
                         odom.pose.pose.position.y = y;
-                        odom.pose.pose.position.z = 0.0;
+                        odom.pose.pose.position.z = dist;
                         //odom.pose.pose.orientation = odom_quat;
                         odom.pose.pose.orientation.z = th;
 
@@ -174,7 +174,7 @@ int main(int argc, char** argv) {
                         imu.orientation_covariance[0] = 0.01;
 
                         imu.angular_velocity.y = omegaZ;          // odczyt z gyro
-                        imu.angular_velocity.z = 0;          // odczyt z gyro
+                        imu.angular_velocity.z = p->GetRA();
                         imu.angular_velocity_covariance[0] = 0.01;
                         imu.angular_velocity_covariance[3] = 0.01;
                         imu.angular_velocity_covariance[6] = 0.01;

@@ -77,7 +77,7 @@ public:
         
         void updateOdometry();
         void getRawOdometry(double &linc, double &rinc);
-        void getOdometry(double &x, double &y, double &a);
+        void getOdometry(double &x, double &y, double &a, double &dst);
         void setOdometry(double x, double y, double a);
         void getImu(double &accX, double &accY, double &accZ, double &omegaZ,
                         double &pitch, double &pitch2, double &destPitch);
@@ -114,6 +114,7 @@ public:
         } joystick;
 
         bool getMeanLinearVelocity(double &mean);
+        double GetRA();
         
 private:
         // state
@@ -140,11 +141,25 @@ private:
         struct termios oldtioImu;
         bool connected2;
 
+        // serial port descriptor - real angle
+        int fdRA;
+        struct termios oldtioRA;
+        bool connected3;
+        
+        int RAold;
+        int RAtime;
+        double RAadd;
+        double RA;
+        
+        int OpenRADevice(int baud);
+        void ReceiveRA(double time);
+
         int OpenImuDevice(const std::string& port, struct termios &oldtio);
         void ReceiveImu(double time);
         
         double ldif, rdif;
         double ldifOdom, rdifOdom;
+        double dist;
         
         // PID angle
         double aKp, aKi, aKd;
@@ -185,7 +200,7 @@ private:
         class Orientation {
         public:
                 Orientation();
-                void update(int accX, int accY, int accZ, int gyro, double time);
+//                void update(int accX, int accY, int accZ, int gyro, double time);
                 void updateFromImu(int accX, int accY, int accZ, int omegaY, int omegaZ, double time);
                 bool isValid(double time);
                 double getPitch();

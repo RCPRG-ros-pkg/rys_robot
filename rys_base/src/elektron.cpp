@@ -34,7 +34,8 @@ double ang_nor_rad(double rad) {
 Protonek::Protonek(const std::string& port0, const std::string& port1, const Protonek::Parameters &parL,
                     const Protonek::Parameters &parR,  int baud)
                     : isBalancing(false), speedRegulator(true), ldif(0), rdif(0),
-                    state(STOPPING), destAngle(0), ldifOdom(0), rdifOdom(0) {
+                    state(STOPPING), destAngle(0), ldifOdom(0), rdifOdom(0), RA(0.0), RAold(0), RAtime(0), RAadd(0.0),
+                    dist(0.0) {
 
         std::string devRs485Name;
 
@@ -43,18 +44,12 @@ Protonek::Protonek(const std::string& port0, const std::string& port1, const Pro
         int f1 = OpenImuDevice(port1, oldtio1);
         
         if (f0 == -1 || f1 == -1) {
-                ROS_DEBUG("nie mozna otworzyc urzadzenia");
-                throw;
+                ROS_DEBUG("nie mozna otworzyc urzadzenia IMU");
         }
         
         int bytesRead0=0, bytesRead1=1;
         unsigned char buffer[500];
 
-/*        do {
-                bytesRead0 += read(f0,buffer,500);
-                bytesRead1 += read(f1,buffer,500);
-        } while (bytesRead0 > 100 || bytesRead1 > 100);
-*/
         if (bytesRead0 > bytesRead1) {
                 devRs485Name = port1;
                 tcsetattr(f1, TCSANOW, &oldtio1);
@@ -115,6 +110,9 @@ Protonek::Protonek(const std::string& port0, const std::string& port1, const Pro
         tcsetattr(fdRs485, TCSANOW, &newtio);
 
         connected = true;
+        
+        fdRA = -1;
+//        fdRA = OpenRADevice(baud);
 }
 
 int Protonek::OpenImuDevice(const std::string& port, struct termios &oldtio)
@@ -148,6 +146,37 @@ int Protonek::OpenImuDevice(const std::string& port, struct termios &oldtio)
         return f;
 }
 
+int Protonek::OpenRADevice(int baud)
+{
+        int f = open("/dev/ttyUSB2", O_RDWR | O_NOCTTY | O_NDELAY);
+        if (f==-1) {
+            printf("nie mozna otworzyc portu: ttyUSB2 errno:%d\n", (int)errno);
+            throw;
+        }
+
+        tcgetattr(f, &oldtioRA);
+
+        // set up new settings
+        struct termios newtio;
+        memset(&newtio, 0, sizeof(newtio));
+        newtio.c_cflag = CBAUD | CS8 | CLOCAL | CREAD | CSTOPB;
+        newtio.c_iflag = IGNPAR;
+        newtio.c_oflag = 0;
+        newtio.c_lflag = 0;
+        if (cfsetispeed(&newtio, baud) < 0 || cfsetospeed(&newtio, baud) < 0) {
+            fprintf(stderr, "Failed to set serial baud rate: %d\n", baud);
+            tcsetattr(f, TCSANOW, &oldtioRA);
+            close(f);
+            f = -1;
+            return f;
+        }
+        // activate new settings
+        tcflush(f, TCIFLUSH);
+        tcsetattr(f, TCSANOW, &newtio);
+
+        return f;
+}
+
 Protonek::~Protonek() {
         // restore old port settings
         if (fdRs485 > 0) {
@@ -157,6 +186,10 @@ Protonek::~Protonek() {
         if (fdImu > 0) {
                 tcsetattr(fdImu, TCSANOW, &oldtioImu);
                 close(fdImu);
+        }
+        if (fdRA > 0) {
+                tcsetattr(fdRA, TCSANOW, &oldtioRA);
+                close(fdRA);
         }
 }
 
@@ -445,7 +478,7 @@ void Protonek::ReceiveImu(double time) {
 
         bytesRead = read(fdImu,buffer,500);
         if (bytesRead < 0) {
-                ROS_DEBUG("connection error");
+                ROS_DEBUG("connection error: IMU");
                 throw;
         }
 
@@ -472,6 +505,41 @@ void Protonek::ReceiveImu(double time) {
         }
 }
 
+void Protonek::ReceiveRA(double time) {
+    if (fdRA > 0)
+    {
+        int bytesRead;
+        unsigned char buffer[500];
+
+        bytesRead = read(fdRA,buffer,500);
+        if (bytesRead < 0) {
+                ROS_DEBUG("connection error: RA");
+                throw;
+        }
+
+        int RAnew = 0;
+        for (int i_buf=0; i_buf<bytesRead; ++i_buf) {
+                RAnew = buffer[i_buf];
+
+                RA = RAnew;
+                
+                if (RAnew > 200 && RAold < 50)  // przekrecilo sie w dol
+                        RAadd -= 256;
+                else if (RAnew < 50 && RAold > 200)
+                        RAadd += 256;
+
+/*                if (RAnew > 200 && RAold < 50)  // przekrecilo sie w dol
+                        RA += (double)(RAnew-RAold-256)/4000.0*360.0;
+                else if (RAnew < 50 && RAold > 200)
+                        RA += (double)(RAnew-RAold+256)/4000.0*360.0;
+                else
+                        RA += (double)(RAnew-RAold)/4000.0*360.0;
+*/
+
+                RAold = RAnew;
+        }
+    }
+}
 
 void Protonek::stateTeleop() {
         ROS_DEBUG("teleop");
@@ -645,6 +713,23 @@ void Protonek::update() {
 
         Receive(time);
         ReceiveImu(time);
+        ReceiveRA(time);
+        
+        if (RAtime < 800)
+        {
+                RAtime++;
+        }
+        else if (RAtime == 800)
+        {
+                RAtime++;
+//                RA = 0;
+                RAadd = orientation.pitchGyro/360.0*4000.0 - RA;
+        }
+}
+
+double Protonek::GetRA()
+{
+        return (RA+RAadd)/4000.0*360.0;
 }
 
 void Protonek::SetPower(double lcur, double rcur)
@@ -690,12 +775,24 @@ void Protonek::updateOdometry() {
 
     ll += ldifOdom;
     rr += rdifOdom;
-    apos += (ldifOdom+rdifOdom)/(AXLE_LENGTH);
     
-    double dist = (ldifOdom-rdifOdom)/2;
+    const double L = (3.1415*WHEEL_DIAM);
+
+    double lDifM, rDifM;
+    
+//    lDifM = L*((double)ldifOdom)/ENC_TICKS;
+//    rDifM = L*((double)rdifOdom)/ENC_TICKS;
+    
+    lDifM = ldifOdom;
+    rDifM = rdifOdom;
+    
+    apos += (lDifM-rDifM)/(AXLE_LENGTH);
+    
+    double dist = (lDifM+rDifM)/2;
     
     xpos += dist * cos(apos);
     ypos += dist * sin(apos);
+    this->dist += dist;
     
     ldifOdom = 0;
     rdifOdom = 0;
@@ -737,10 +834,11 @@ bool Protonek::getMeanLinearVelocity(double &mean) {
         return true;
 }
 
-void Protonek::getOdometry(double &x, double &y, double &a) {
+void Protonek::getOdometry(double &x, double &y, double &a, double &dst) {
         x = xpos;
         y = ypos;
         a = apos;
+        dst = dist;
 }
 
 void Protonek::setOdometry(double x, double y, double a) {
@@ -771,7 +869,7 @@ bool Protonek::isConnected() {
 Protonek::Orientation::Orientation() : accX(100), accY(100), accZ(100),
         pitch(0), oldPitch(0), updated(-100), updated2(-101), pitchGyro(0) {
 }
-
+/*
 void Protonek::Orientation::update(int accX, int accY, int accZ, int g, double time) {
 
     double acceleration = sqrt((accY-311)*(accY-311) + (accZ-316)*(accZ-316))/145.0;
@@ -806,8 +904,9 @@ void Protonek::Orientation::update(int accX, int accY, int accZ, int g, double t
     updated2 = updated;
     updated = time;
 
-}
 
+}
+*/
 void Protonek::Orientation::updateFromImu(int accX, int accY, int accZ, int omegaY, int omegaZ, double time) {
 
     static FilteredDouble m(4,0);
@@ -820,13 +919,14 @@ void Protonek::Orientation::updateFromImu(int accX, int accY, int accZ, int omeg
     this->omegaY = omegaY;
     this->omegaZ = omegaZ;
 
+    // TODO: zmienic +10.0 na +18.0
     pitchGyro += ((double)this->omegaZ+10.0)*0.001;
     if (pitchGyro > 180 + pitch)
             pitchGyro -= 360;
     if (pitchGyro < -180 + pitch)
             pitchGyro += 360;
     
-    pitchGyro += (pitch - pitchGyro)*0.03;
+    pitchGyro += (pitch - pitchGyro)*0.01;
     if (pitchGyro > 180 + pitch)
             pitchGyro -= 360;
     if (pitchGyro < -180 + pitch)
