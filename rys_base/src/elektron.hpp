@@ -120,6 +120,7 @@ private:
         // state
         enum STATE { TELEOP, BALANCING, STOPPING, GETTINGUP };
         STATE state;
+        bool noGyro;
 
         void stateTeleop();
         void stateBalancing(double time, double interval);

@@ -35,34 +35,26 @@ Protonek::Protonek(const std::string& port0, const std::string& port1, const Pro
                     const Protonek::Parameters &parR,  int baud)
                     : isBalancing(false), speedRegulator(true), ldif(0), rdif(0),
                     state(STOPPING), destAngle(0), ldifOdom(0), rdifOdom(0), RA(0.0), RAold(0), RAtime(0), RAadd(0.0),
-                    dist(0.0) {
+                    dist(0.0), noGyro(true) {
 
         std::string devRs485Name;
 
         struct termios oldtio0, oldtio1;
-        int f0 = OpenImuDevice(port0, oldtio0);
+        int f0 = -1;
         int f1 = OpenImuDevice(port1, oldtio1);
         
-        if (f0 == -1 || f1 == -1) {
+        if (f1 == -1) {
                 ROS_DEBUG("nie mozna otworzyc urzadzenia IMU");
+        } else {
+            noGyro = false;
         }
         
-        int bytesRead0=0, bytesRead1=1;
-        unsigned char buffer[500];
-
-        if (bytesRead0 > bytesRead1) {
-                devRs485Name = port1;
-                tcsetattr(f1, TCSANOW, &oldtio1);
-                close(f1);
-                oldtioImu = oldtio0;
-                fdImu = f0;
-        } else {
-                devRs485Name = port0;
-                tcsetattr(f0, TCSANOW, &oldtio0);
-                close(f0);
-                oldtioImu = oldtio1;
-                fdImu = f1;
-        }
+        
+        devRs485Name = port0;
+        tcsetattr(f0, TCSANOW, &oldtio0);
+        close(f0);
+        oldtioImu = oldtio1;
+        fdImu = f1;
 
         bridgeL.setCurrentPID(parL.currentKp, parL.currentKi, parL.currentKd);
         bridgeL.setSpeedPID(parL.speedKp, parL.speedKi, parL.speedKd);
@@ -120,7 +112,8 @@ int Protonek::OpenImuDevice(const std::string& port, struct termios &oldtio)
         int f = open(port.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
         if (f==-1) {
             printf("nie mozna otworzyc portu: %s errno:%d\n",port.c_str(), (int)errno);
-            throw;
+            return f;
+//            throw;
         }
 
         tcgetattr(f, &oldtio);
@@ -470,16 +463,19 @@ void Protonek::Receive(double time) {
 }
 
 void Protonek::ReceiveImu(double time) {
-        int bytesRead;
+        int bytesRead = 0;
         unsigned char buffer[500];
         unsigned char buf=0;
         static char line[300];
         static int lineIndex = 0;
 
-        bytesRead = read(fdImu,buffer,500);
-        if (bytesRead < 0) {
-                ROS_DEBUG("connection error: IMU");
-                throw;
+        if (fdImu > 0)
+        {
+            bytesRead = read(fdImu,buffer,500);
+            if (bytesRead < 0) {
+                    ROS_DEBUG("connection error: IMU");
+                    throw;
+            }
         }
 
         for (int i_buf=0; i_buf<bytesRead; ++i_buf) {
@@ -565,13 +561,13 @@ void Protonek::stateTeleop() {
                         rvel *= 0.5;
                 }
                 
-                if (joystick.buttonGetUp) {
+                if (joystick.buttonGetUp && !noGyro) {
                         getUp();
                 } else
                 if (joystick.buttonTrick) {
                 }
                 
-                if (fabs(orientation.pitchGyro-balanceAngle)<10) {
+                if (fabs(orientation.pitchGyro-balanceAngle)<10 && !noGyro) {
                         state = BALANCING;
                         Balance3(true);
                 }
@@ -618,6 +614,7 @@ void Protonek::stateStopping(double interval) {
 }
 
 void Protonek::stateGettingUp() {
+        ROS_DEBUG("GETTINGUP");
 
         double lcur = 0, rcur = 0;
         static FilteredDouble m(8,0);
@@ -686,7 +683,7 @@ void Protonek::update() {
                         //throw;
                 }
 
-                if (!orientation.isValid(time)) {
+                if (!orientation.isValid(time) && (state == BALANCING || state == GETTINGUP)) {
                         ROS_DEBUG("no gyro/acc data!");
                         state = STOPPING;
                 }
