@@ -8,7 +8,7 @@ default_target: all
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canoncical targets will work.
+# Disable implicit rules so canonical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -35,9 +35,6 @@ CMAKE_COMMAND = /usr/bin/cmake
 # The command to remove a file.
 RM = /usr/bin/cmake -E remove -f
 
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/bin/ccmake
-
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /home/eee/ros/rys_robot/rys_base
 
@@ -49,13 +46,54 @@ CMAKE_BINARY_DIR = /home/eee/ros/rys_robot/rys_base
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/usr/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running interactive CMake command-line interface..."
+	/usr/bin/cmake -i .
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
 edit_cache/fast: edit_cache
 .PHONY : edit_cache/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: install/local
+.PHONY : install/local/fast
+
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: install/strip
+.PHONY : install/strip/fast
+
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+.PHONY : list_install_components/fast
 
 # Special rule for the target rebuild_cache
 rebuild_cache:
@@ -112,19 +150,6 @@ ROSBUILD_genmsg_cpp/fast:
 .PHONY : ROSBUILD_genmsg_cpp/fast
 
 #=============================================================================
-# Target rules for targets named ROSBUILD_genmsg_lisp
-
-# Build rule for target.
-ROSBUILD_genmsg_lisp: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 ROSBUILD_genmsg_lisp
-.PHONY : ROSBUILD_genmsg_lisp
-
-# fast build rule for target.
-ROSBUILD_genmsg_lisp/fast:
-	$(MAKE) -f CMakeFiles/ROSBUILD_genmsg_lisp.dir/build.make CMakeFiles/ROSBUILD_genmsg_lisp.dir/build
-.PHONY : ROSBUILD_genmsg_lisp/fast
-
-#=============================================================================
 # Target rules for targets named ROSBUILD_gensrv_cpp
 
 # Build rule for target.
@@ -138,30 +163,43 @@ ROSBUILD_gensrv_cpp/fast:
 .PHONY : ROSBUILD_gensrv_cpp/fast
 
 #=============================================================================
-# Target rules for targets named ROSBUILD_gensrv_lisp
+# Target rules for targets named clean_test_results
 
 # Build rule for target.
-ROSBUILD_gensrv_lisp: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 ROSBUILD_gensrv_lisp
-.PHONY : ROSBUILD_gensrv_lisp
+clean_test_results: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 clean_test_results
+.PHONY : clean_test_results
 
 # fast build rule for target.
-ROSBUILD_gensrv_lisp/fast:
-	$(MAKE) -f CMakeFiles/ROSBUILD_gensrv_lisp.dir/build.make CMakeFiles/ROSBUILD_gensrv_lisp.dir/build
-.PHONY : ROSBUILD_gensrv_lisp/fast
+clean_test_results/fast:
+	$(MAKE) -f CMakeFiles/clean_test_results.dir/build.make CMakeFiles/clean_test_results.dir/build
+.PHONY : clean_test_results/fast
 
 #=============================================================================
-# Target rules for targets named clean-test-results
+# Target rules for targets named doxygen
 
 # Build rule for target.
-clean-test-results: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 clean-test-results
-.PHONY : clean-test-results
+doxygen: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 doxygen
+.PHONY : doxygen
 
 # fast build rule for target.
-clean-test-results/fast:
-	$(MAKE) -f CMakeFiles/clean-test-results.dir/build.make CMakeFiles/clean-test-results.dir/build
-.PHONY : clean-test-results/fast
+doxygen/fast:
+	$(MAKE) -f CMakeFiles/doxygen.dir/build.make CMakeFiles/doxygen.dir/build
+.PHONY : doxygen/fast
+
+#=============================================================================
+# Target rules for targets named rosbuild_clean-test-results
+
+# Build rule for target.
+rosbuild_clean-test-results: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 rosbuild_clean-test-results
+.PHONY : rosbuild_clean-test-results
+
+# fast build rule for target.
+rosbuild_clean-test-results/fast:
+	$(MAKE) -f CMakeFiles/rosbuild_clean-test-results.dir/build.make CMakeFiles/rosbuild_clean-test-results.dir/build
+.PHONY : rosbuild_clean-test-results/fast
 
 #=============================================================================
 # Target rules for targets named rosbuild_precompile
@@ -227,6 +265,19 @@ rospack_gensrv: cmake_check_build_system
 rospack_gensrv/fast:
 	$(MAKE) -f CMakeFiles/rospack_gensrv.dir/build.make CMakeFiles/rospack_gensrv.dir/build
 .PHONY : rospack_gensrv/fast
+
+#=============================================================================
+# Target rules for targets named run_tests
+
+# Build rule for target.
+run_tests: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 run_tests
+.PHONY : run_tests
+
+# fast build rule for target.
+run_tests/fast:
+	$(MAKE) -f CMakeFiles/run_tests.dir/build.make CMakeFiles/run_tests.dir/build
+.PHONY : run_tests/fast
 
 #=============================================================================
 # Target rules for targets named rys_base_node
@@ -306,65 +357,127 @@ tests/fast:
 	$(MAKE) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/build
 .PHONY : tests/fast
 
-# target to build an object file
-src/common.o:
-	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/common.o
+#=============================================================================
+# Target rules for targets named gtest
+
+# Build rule for target.
+gtest: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 gtest
+.PHONY : gtest
+
+# fast build rule for target.
+gtest/fast:
+	$(MAKE) -f gtest/CMakeFiles/gtest.dir/build.make gtest/CMakeFiles/gtest.dir/build
+.PHONY : gtest/fast
+
+#=============================================================================
+# Target rules for targets named gtest_main
+
+# Build rule for target.
+gtest_main: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 gtest_main
+.PHONY : gtest_main
+
+# fast build rule for target.
+gtest_main/fast:
+	$(MAKE) -f gtest/CMakeFiles/gtest_main.dir/build.make gtest/CMakeFiles/gtest_main.dir/build
+.PHONY : gtest_main/fast
+
+src/common.o: src/common.cpp.o
 .PHONY : src/common.o
 
-# target to preprocess a source file
-src/common.i:
-	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/common.i
+# target to build an object file
+src/common.cpp.o:
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/common.cpp.o
+.PHONY : src/common.cpp.o
+
+src/common.i: src/common.cpp.i
 .PHONY : src/common.i
 
-# target to generate assembly for a file
-src/common.s:
-	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/common.s
+# target to preprocess a source file
+src/common.cpp.i:
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/common.cpp.i
+.PHONY : src/common.cpp.i
+
+src/common.s: src/common.cpp.s
 .PHONY : src/common.s
 
-# target to build an object file
-src/elektron.o:
-	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/elektron.o
+# target to generate assembly for a file
+src/common.cpp.s:
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/common.cpp.s
+.PHONY : src/common.cpp.s
+
+src/elektron.o: src/elektron.cpp.o
 .PHONY : src/elektron.o
 
-# target to preprocess a source file
-src/elektron.i:
-	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/elektron.i
+# target to build an object file
+src/elektron.cpp.o:
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/elektron.cpp.o
+.PHONY : src/elektron.cpp.o
+
+src/elektron.i: src/elektron.cpp.i
 .PHONY : src/elektron.i
 
-# target to generate assembly for a file
-src/elektron.s:
-	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/elektron.s
+# target to preprocess a source file
+src/elektron.cpp.i:
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/elektron.cpp.i
+.PHONY : src/elektron.cpp.i
+
+src/elektron.s: src/elektron.cpp.s
 .PHONY : src/elektron.s
 
-# target to build an object file
-src/elektron_base_node.o:
-	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/elektron_base_node.o
+# target to generate assembly for a file
+src/elektron.cpp.s:
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/elektron.cpp.s
+.PHONY : src/elektron.cpp.s
+
+src/elektron_base_node.o: src/elektron_base_node.cpp.o
 .PHONY : src/elektron_base_node.o
 
-# target to preprocess a source file
-src/elektron_base_node.i:
-	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/elektron_base_node.i
+# target to build an object file
+src/elektron_base_node.cpp.o:
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/elektron_base_node.cpp.o
+.PHONY : src/elektron_base_node.cpp.o
+
+src/elektron_base_node.i: src/elektron_base_node.cpp.i
 .PHONY : src/elektron_base_node.i
 
-# target to generate assembly for a file
-src/elektron_base_node.s:
-	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/elektron_base_node.s
+# target to preprocess a source file
+src/elektron_base_node.cpp.i:
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/elektron_base_node.cpp.i
+.PHONY : src/elektron_base_node.cpp.i
+
+src/elektron_base_node.s: src/elektron_base_node.cpp.s
 .PHONY : src/elektron_base_node.s
 
-# target to build an object file
-src/hbridge.o:
-	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/hbridge.o
+# target to generate assembly for a file
+src/elektron_base_node.cpp.s:
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/elektron_base_node.cpp.s
+.PHONY : src/elektron_base_node.cpp.s
+
+src/hbridge.o: src/hbridge.cpp.o
 .PHONY : src/hbridge.o
 
-# target to preprocess a source file
-src/hbridge.i:
-	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/hbridge.i
+# target to build an object file
+src/hbridge.cpp.o:
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/hbridge.cpp.o
+.PHONY : src/hbridge.cpp.o
+
+src/hbridge.i: src/hbridge.cpp.i
 .PHONY : src/hbridge.i
 
-# target to generate assembly for a file
-src/hbridge.s:
-	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/hbridge.s
+# target to preprocess a source file
+src/hbridge.cpp.i:
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/hbridge.cpp.i
+.PHONY : src/hbridge.cpp.i
+
+src/hbridge.s: src/hbridge.cpp.s
 .PHONY : src/hbridge.s
+
+# target to generate assembly for a file
+src/hbridge.cpp.s:
+	$(MAKE) -f CMakeFiles/rys_base_node.dir/build.make CMakeFiles/rys_base_node.dir/src/hbridge.cpp.s
+.PHONY : src/hbridge.cpp.s
 
 # Help Target
 help:
@@ -373,23 +486,30 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... ROSBUILD_genmsg_cpp"
-	@echo "... ROSBUILD_genmsg_lisp"
 	@echo "... ROSBUILD_gensrv_cpp"
-	@echo "... ROSBUILD_gensrv_lisp"
-	@echo "... clean-test-results"
+	@echo "... clean_test_results"
+	@echo "... doxygen"
 	@echo "... edit_cache"
+	@echo "... install"
+	@echo "... install/local"
+	@echo "... install/strip"
+	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... rosbuild_clean-test-results"
 	@echo "... rosbuild_precompile"
 	@echo "... rosbuild_premsgsrvgen"
 	@echo "... rospack_genmsg"
 	@echo "... rospack_genmsg_libexe"
 	@echo "... rospack_gensrv"
+	@echo "... run_tests"
 	@echo "... rys_base_node"
 	@echo "... test"
 	@echo "... test-future"
 	@echo "... test-results"
 	@echo "... test-results-run"
 	@echo "... tests"
+	@echo "... gtest"
+	@echo "... gtest_main"
 	@echo "... src/common.o"
 	@echo "... src/common.i"
 	@echo "... src/common.s"
